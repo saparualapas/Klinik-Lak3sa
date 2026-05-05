@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Lak3sa Klinik — Lapas Kelas III Saparua</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ══════════════ ROOT ══════════════════════════════════════════ */
+:root{
+  --t2:#14b8a6;--t3:#0f766e;--t4:#0d9488;
+  --bg:#f0fdfa;--card:#fff;--txt:#134e4a;
+  --bd:rgba(20,184,166,.16);--sh:0 4px 20px rgba(15,118,110,.09);
+  --li:#94a3b8;--mu:#64748b;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;-webkit-text-size-adjust:100%;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
+
+/* ══════════════ SPLASH ════════════════════════════════════════ */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0f766e,#0d9488,#06b6d4);display:flex;align-items:center;justify-content:center;transition:opacity .75s ease;}
+#splash.out{opacity:0;pointer-events:none;}
+.sp-ring{width:120px;height:120px;border-radius:50%;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;position:relative;}
+.sp-ring::before{content:'';position:absolute;inset:-2px;border-radius:50%;border:2.5px solid transparent;border-top-color:rgba(255,255,255,.9);border-right-color:rgba(255,255,255,.35);animation:spR 1.7s linear infinite;}
+.sp-ring::after{content:'';position:absolute;inset:9px;border-radius:50%;border:2px solid transparent;border-bottom-color:rgba(255,255,255,.55);border-left-color:rgba(255,255,255,.2);animation:spR 2.9s linear infinite reverse;}
+.sp-ic{width:82px;height:82px;border-radius:50%;background:rgba(255,255,255,.13);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:2.4rem;animation:spP 2s ease-in-out infinite;}
+@keyframes spR{to{transform:rotate(360deg);}}
+@keyframes spP{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.sp-bar{width:170px;height:3px;background:rgba(255,255,255,.2);border-radius:99px;margin:1.5rem auto 0;overflow:hidden;}
+.sp-bf{height:100%;background:#fff;border-radius:99px;animation:spF 2.3s ease-in-out forwards;}
+@keyframes spF{from{width:0}to{width:100%}}
+.sp-dots{display:flex;gap:7px;justify-content:center;margin-top:.875rem;}
+.sp-dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4);animation:spD 1.4s ease-in-out infinite;}
+.sp-dots span:nth-child(2){animation-delay:.2s;}.sp-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes spD{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.2)}}
+
+/* ══════════════ SHARED FULL-PAGE ═════════════════════════════ */
+.fullpage{display:none;min-height:100vh;background:linear-gradient(135deg,#0f766e,#0d9488,#06b6d4);flex-direction:column;align-items:center;justify-content:center;padding:1rem;}
+.fp-box{width:100%;max-width:400px;}
+.fp-head{text-align:center;margin-bottom:1.6rem;}
+.fp-head .fp-ic{width:70px;height:70px;background:rgba(255,255,255,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;font-size:2rem;backdrop-filter:blur(8px);}
+.fp-head h1{font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;letter-spacing:1.2px;}
+.fp-head p{color:rgba(255,255,255,.6);font-size:.78rem;margin-top:.25rem;}
+.fp-card{background:rgba(255,255,255,.97);border-radius:22px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.18);}
+.fp-card h2{font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:1.2rem;font-size:1rem;}
+.fp-foot{text-align:center;color:rgba(255,255,255,.35);font-size:.68rem;margin-top:1.1rem;}
+
+/* ══════════════ FORM ELEMENTS ════════════════════════════════ */
+.f{width:100%;padding:.65rem .9rem;border:1.5px solid #ccfbf1;border-radius:11px;background:#f8fffe;font-family:inherit;font-size:.875rem;color:var(--txt);outline:none;transition:all .17s;appearance:none;}
+.f:focus{border-color:var(--t2);background:#fff;box-shadow:0 0 0 3px rgba(20,184,166,.12);}
+.f::placeholder{color:var(--li);}
+.f[readonly]{background:#e2e8f0;color:var(--mu);cursor:not-allowed;}
+.fl{font-size:.72rem;font-weight:700;color:var(--mu);display:block;margin-bottom:.26rem;letter-spacing:.25px;}
+.fw{margin-bottom:.6rem;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.62rem;}
+.s2{grid-column:1/-1;}
+@media(max-width:480px){.g2{grid-template-columns:1fr;}.s2{grid-column:1;}}
+
+/* ══════════════ BUTTONS ══════════════════════════════════════ */
+.btn{cursor:pointer;border:none;border-radius:10px;font-family:inherit;font-size:.82rem;font-weight:600;transition:all .18s;padding:.55rem 1rem;}
+.bp{background:linear-gradient(135deg,var(--t3),var(--t2));color:#fff;font-family:'Sora',sans-serif;font-weight:700;letter-spacing:.4px;box-shadow:0 4px 14px rgba(13,148,136,.28);}
+.bp:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(13,148,136,.38);}
+.bp:active{transform:translateY(0);}
+.bp:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none;}
+.bs{background:#f0fdfa;color:var(--t3);border:1.5px solid #99f6e4;}
+.bs:hover{background:#ccfbf1;}
+.bd{background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;}
+.bd:hover{background:#fee2e2;}
+.bl2{background:#dbeafe;color:#1d4ed8;border:1.5px solid #bfdbfe;}
+.bsm{padding:.27rem .62rem;border-radius:7px;font-size:.73rem;}
+.bex{background:#f0fdfa;color:var(--t3);border:1.5px solid #99f6e4;border-radius:9px;padding:.42rem .85rem;font-size:.76rem;}
+.bex:hover{background:#ccfbf1;}
+.sp2{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spR .7s linear infinite;display:inline-block;vertical-align:middle;}
+
+/* ══════════════ BADGES ═══════════════════════════════════════ */
+.badge{display:inline-block;padding:.18rem .6rem;border-radius:99px;font-size:.7rem;font-weight:700;}
+.bt{background:#ccfbf1;color:#0f766e;}
+.ba{background:#fef3c7;color:#d97706;}
+.bl2-b{background:#dbeafe;color:#1d4ed8;}
+
+/* ══════════════ APP SHELL ════════════════════════════════════ */
+#app{display:none;min-height:100vh;flex-direction:column;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:300;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);padding:0 1rem;height:54px;display:flex;align-items:center;justify-content:space-between;gap:.5rem;}
+.tbrand{display:flex;align-items:center;gap:.6rem;flex-shrink:0;}
+.tic{width:34px;height:34px;background:linear-gradient(135deg,var(--t3),var(--t2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.tname{font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.9rem;line-height:1.1;}
+.tsub{font-size:.6rem;color:var(--li);font-weight:500;}
+.tacts{display:flex;align-items:center;gap:.4rem;flex-shrink:0;}
+#topbarUser{background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:8px;padding:.28rem .7rem;font-size:.73rem;color:var(--t3);font-weight:700;max-width:105px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hmb{background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--t3);padding:.2rem;line-height:1;display:none;}
+
+/* LAYOUT */
+.abody{display:flex;flex:1;min-height:0;}
+
+/* SIDEBAR */
+.sidebar{width:205px;flex-shrink:0;padding:.8rem .7rem;border-right:1px solid var(--bd);background:var(--card);position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;}
+.ni{display:flex;align-items:center;gap:.6rem;padding:.62rem .85rem;border-radius:11px;cursor:pointer;font-weight:600;font-size:.82rem;color:var(--mu);transition:all .17s;user-select:none;margin-bottom:2px;}
+.ni:hover{background:#f0fdfa;color:var(--t3);}
+.ni.on{background:linear-gradient(135deg,var(--t3),var(--t2));color:#fff;box-shadow:0 3px 10px rgba(13,148,136,.27);}
+.sdiv{height:1px;background:var(--bd);margin:.6rem 0;}
+.slbl{font-size:.64rem;font-weight:800;color:var(--li);letter-spacing:1px;padding:.2rem .85rem;}
+#sheetBadge{display:block;margin:.2rem .7rem .4rem;background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:7px;padding:.27rem .62rem;font-size:.76rem;font-weight:700;color:var(--t3);}
+
+/* DRAWER */
+#drawerOv{display:none;position:fixed;inset:0;z-index:400;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);}
+#drawerOv.on{display:block;}
+#drawer{position:fixed;left:0;top:0;bottom:0;z-index:401;width:232px;background:var(--card);transform:translateX(-100%);transition:transform .27s cubic-bezier(.4,0,.2,1);padding:.875rem .7rem;overflow-y:auto;box-shadow:4px 0 20px rgba(0,0,0,.1);}
+#drawer.on{transform:translateX(0);}
+.dhead{display:flex;align-items:center;gap:.6rem;padding:.4rem .2rem .9rem;border-bottom:1px solid var(--bd);margin-bottom:.7rem;}
+
+/* MAIN */
+.main{flex:1;min-width:0;padding:1.1rem 1rem;overflow-x:hidden;}
+@media(min-width:768px){.main{padding:1.25rem 1.5rem;}}
+
+/* BOTTOM NAV */
+#mobNav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bd);padding:.35rem 0 calc(.35rem + env(safe-area-inset-bottom,0px));}
+.mni{flex:1;display:flex;flex-direction:column;align-items:center;gap:.12rem;padding:.3rem .2rem;cursor:pointer;border:none;background:none;color:var(--li);font-size:.6rem;font-weight:600;font-family:inherit;transition:color .15s;}
+.mni .mic{font-size:1.15rem;line-height:1;}
+.mni.on{color:var(--t3);}
+
+/* RESPONSIVE */
+@media(max-width:767px){.sidebar{display:none;}.hmb{display:flex;}#topbarUser{display:none;}.main{padding:.7rem .8rem 5.5rem;}}
+
+/* ══════════════ PAGE ═════════════════════════════════════════ */
+.page{display:none;}.page.on{display:block;animation:fU .3s ease;}
+@keyframes fU{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════ CARD ═════════════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);}
+@media(min-width:768px){.card{border-radius:18px;}}
+
+/* ══════════════ LAZY ═════════════════════════════════════════ */
+.lzy{opacity:0;transform:translateY(10px);transition:opacity .38s ease,transform .38s ease;}
+.lzy.vs{opacity:1;transform:translateY(0);}
+
+/* ══════════════ STAT CARDS ═══════════════════════════════════ */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.1rem;}
+@media(max-width:480px){.sgrid{grid-template-columns:1fr 1fr;}}
+.sc{border-radius:14px;padding:1rem;color:#fff;position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;right:-16px;top:-16px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.1);}
+.snum{font-size:1.7rem;font-weight:800;line-height:1.1;margin-top:.12rem;}
+@media(max-width:480px){.sc:last-child{grid-column:1/-1;}.snum{font-size:1.5rem;}}
+
+/* ══════════════ TABLE ════════════════════════════════════════ */
+.twrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem;min-width:550px;}
+.tbl th{background:#f0fdfa;color:var(--t3);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid #ccfbf1;white-space:nowrap;position:sticky;top:0;z-index:1;}
+.tbl td{padding:.65rem .9rem;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#f8fffd;}
+.sk{background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%);background-size:200% 100%;animation:skA 1.4s ease-in-out infinite;border-radius:6px;}
+@keyframes skA{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.el{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* Card-table on mobile */
+@media(max-width:600px){
+  .tbl-card .tbl{min-width:unset;}
+  .tbl-card .tbl thead{display:none;}
+  .tbl-card .tbl tr{display:block;background:#fff;border:1px solid var(--bd);border-radius:11px;margin-bottom:.55rem;padding:.6rem;}
+  .tbl-card .tbl td{display:flex;justify-content:space-between;align-items:flex-start;padding:.28rem 0;border:none;font-size:.79rem;gap:.4rem;flex-wrap:wrap;}
+  .tbl-card .tbl td::before{content:attr(data-label);font-weight:700;color:var(--mu);font-size:.68rem;white-space:nowrap;flex-shrink:0;}
+  .tbl-card .tbl tr:hover td{background:transparent;}
+  .el{max-width:150px;}
+}
+
+/* ══════════════ PAGINATION ═══════════════════════════════════ */
+.pgwrap{display:flex;align-items:center;justify-content:space-between;padding:.8rem .2rem 0;flex-wrap:wrap;gap:.45rem;}
+.pginf{font-size:.75rem;color:var(--mu);}
+.pgbtns{display:flex;gap:.28rem;flex-wrap:wrap;}
+.pgb{padding:.3rem .62rem;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid #ccfbf1;background:#fff;color:var(--t3);transition:all .13s;}
+.pgb:hover{background:#ccfbf1;}
+.pgb.on{background:var(--t2);color:#fff;border-color:var(--t2);}
+.pgb:disabled{opacity:.35;cursor:not-allowed;}
+
+/* ══════════════ HISTORY CARD ════════════════════════════════ */
+.hc{padding:.8rem;border-radius:11px;border-left:3px solid var(--t2);background:#fff;box-shadow:0 2px 7px rgba(15,118,110,.06);margin-bottom:.6rem;transition:transform .13s;}
+.hc:hover{transform:translateX(2px);}
+
+/* ══════════════ DRUG TAGS ═══════════════════════════════════ */
+.dtgs{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.12rem;}
+.dtg{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:5px;padding:.15rem .5rem;font-size:.73rem;font-weight:600;}
+
+/* ══════════════ INFO BOX ════════════════════════════════════ */
+.ibx{background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:12px;padding:.9rem;margin-bottom:.9rem;}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:.38rem .65rem;font-size:.79rem;}
+@media(min-width:480px){.igrid{grid-template-columns:repeat(3,1fr);}}
+.ii span{font-size:.66rem;font-weight:700;color:var(--li);display:block;margin-bottom:.08rem;text-transform:uppercase;letter-spacing:.25px;}
+.ii strong{font-size:.8rem;}
+
+/* ══════════════ MODAL ════════════════════════════════════════ */
+.mo{position:fixed;inset:0;z-index:8888;background:rgba(15,23,42,.58);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
+.mo.op{opacity:1;pointer-events:all;}
+@media(min-width:560px){.mo{align-items:center;padding:1rem;}}
+.mb{background:#fff;border-radius:20px 20px 0 0;padding:1.4rem;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(36px);transition:transform .28s cubic-bezier(.34,1.56,.64,1);}
+@media(min-width:560px){.mb{border-radius:20px;max-width:580px;transform:scale(.92);}}
+.mo.op .mb{transform:translateY(0);}
+@media(min-width:560px){.mo.op .mb{transform:scale(1);}}
+.mt{font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1.1rem;font-size:.95rem;}
+.mft{display:flex;gap:.6rem;margin-top:1.1rem;}
+
+/* Detail rows */
+.ir{display:flex;align-items:baseline;padding:.38rem 0;border-bottom:1px solid #f1f5f9;gap:.5rem;flex-wrap:wrap;}
+.ir:last-child{border-bottom:none;}
+.ik{font-size:.7rem;font-weight:700;color:var(--li);min-width:110px;flex-shrink:0;}
+.iv{font-size:.8rem;font-weight:500;color:var(--txt);}
+
+/* ══════════════ TOAST ════════════════════════════════════════ */
+#toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(36px);z-index:9998;padding:.8rem 1.3rem;border-radius:12px;font-weight:600;font-size:.82rem;opacity:0;transition:all .32s cubic-bezier(.34,1.56,.64,1);max-width:calc(100vw - 2rem);width:max-content;text-align:center;pointer-events:none;}
+@media(min-width:768px){#toast{left:auto;right:1.5rem;bottom:1.75rem;transform:translateY(36px);}}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media(min-width:768px){#toast.show{transform:translateY(0);}}
+#toast.ok{background:#0d9488;color:#fff;box-shadow:0 6px 18px rgba(13,148,136,.38);}
+#toast.er{background:#e11d48;color:#fff;box-shadow:0 6px 18px rgba(225,29,72,.38);}
+#toast.in{background:#0891b2;color:#fff;}
+
+/* ══════════════ SHEET LIST ══════════════════════════════════ */
+.sheet-item{display:flex;align-items:center;justify-content:space-between;padding:.6rem .85rem;border-radius:10px;border:1.5px solid var(--bd);margin-bottom:.4rem;transition:all .15s;background:var(--card);}
+.sheet-item:hover{border-color:var(--t2);background:#f0fdfa;}
+.sheet-item.aktif{border-color:#16a34a;background:#f0fdf4;}
+.sheet-item.selected{border-color:var(--t2);background:#f0fdfa;}
+
+/* ══════════════ SEC TITLE ═══════════════════════════════════ */
+.stl{font-size:.67rem;font-weight:800;color:var(--li);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.7rem;padding-bottom:.32rem;border-bottom:1px dashed #e2e8f0;}
+
+/* ══════════════ EMPTY ═══════════════════════════════════════ */
+.emp{text-align:center;padding:1.5rem 1rem;color:var(--li);}
+.ei{font-size:2rem;margin-bottom:.55rem;}
+
+/* ══════════════ FOOTER ══════════════════════════════════════ */
+.footer{background:linear-gradient(135deg,var(--t3),var(--t2));color:#fff;padding:1rem 1.5rem;}
+.fin{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+@media(max-width:767px){.footer{margin-bottom:54px;}}
+
+/* ══════════════ SCROLLBAR ═══════════════════════════════════ */
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#5eead4;border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div style="text-align:center">
+    <div class="sp-ring"><div class="sp-ic">🏥</div></div>
+    <div style="font-family:'Sora',sans-serif;font-size:1.7rem;font-weight:800;color:#fff;margin-top:1.5rem;letter-spacing:2.5px">LAK3SA KLINIK</div>
+    <div style="color:rgba(255,255,255,.65);font-size:.8rem;margin-top:.35rem">Lapas Kelas III Saparua</div>
+    <div class="sp-bar"><div class="sp-bf"></div></div>
+    <div class="sp-dots"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<!-- ══ SETUP PAGE (pertama kali) ══════════════════════════════ -->
+<div id="setupPage" class="fullpage">
+  <div class="fp-box">
+    <div class="fp-head">
+      <div class="fp-ic">🔗</div>
+      <h1>LAK3SA KLINIK</h1>
+      <p>Setup pertama kali — masukkan URL API</p>
+    </div>
+    <div class="fp-card">
+      <h2>Konfigurasi URL API</h2>
+      <div class="fw">
+        <label class="fl">URL GOOGLE APPS SCRIPT WEB APP</label>
+        <input type="url" id="setupUrl" class="f" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      <div style="background:#f0fdfa;border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.78rem;color:#475569;line-height:1.6">
+        📋 URL ini didapat setelah Deploy Web App di Google Apps Script.<br>
+        Format: <code style="background:#e2e8f0;padding:.1rem .3rem;border-radius:4px;font-size:.72rem">https://script.google.com/macros/s/.../exec</code>
+      </div>
+      <button class="btn bp" style="width:100%" onclick="submitSetup()">Simpan & Lanjutkan →</button>
+    </div>
+    <div class="fp-foot">© 2026 Lak3sa Klinik — Lapas Kelas III Saparua</div>
+  </div>
+</div>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════ -->
+<div id="loginPage" class="fullpage">
+  <div class="fp-box">
+    <div class="fp-head">
+      <div class="fp-ic">🏥</div>
+      <h1>LAK3SA KLINIK</h1>
+      <p>Lapas Kelas III Saparua · 2026</p>
+    </div>
+    <div class="fp-card">
+      <h2>Selamat Datang 👋</h2>
+      <div class="fw">
+        <label class="fl">USERNAME</label>
+        <input type="text" id="login_u" class="f" placeholder="Masukkan username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="fw">
+        <label class="fl">PASSWORD</label>
+        <input type="password" id="login_p" class="f" placeholder="Masukkan password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="loginErr" style="display:none;background:#fef2f2;color:#dc2626;padding:.6rem .9rem;border-radius:9px;font-size:.78rem;font-weight:600;margin-bottom:.85rem">❌ Username atau password salah!</div>
+      <button class="btn bp" style="width:100%" onclick="doLogin()" id="loginBtn">MASUK</button>
+    </div>
+    <div class="fp-foot">© 2026 Lak3sa Klinik — Lapas Kelas III Saparua</div>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tbrand">
+      <button class="hmb" onclick="openDrawer()">☰</button>
+      <div class="tic">🏥</div>
+      <div><div class="tname">LAK3SA KLINIK</div><div class="tsub">Lapas Kelas III Saparua</div></div>
+    </div>
+    <div class="tacts">
+      <div id="topbarUser"></div>
+      <button class="btn bs" onclick="showMod('modPw')" style="font-size:.75rem;padding:.32rem .7rem">🔑</button>
+      <button class="btn bd" onclick="doLogout()" style="font-size:.75rem;padding:.32rem .7rem">Keluar</button>
+    </div>
+  </header>
+
+  <!-- DRAWER -->
+  <div id="drawerOv" onclick="closeDrawer()"></div>
+  <div id="drawer">
+    <div class="dhead">
+      <div class="tic">🏥</div>
+      <div><div class="tname" style="font-size:.85rem">LAK3SA KLINIK</div><div class="tsub">Lapas Kelas III Saparua</div></div>
+    </div>
+    <div class="ni on" id="d-nav-pem" onclick="showPage('pem')"><span>🩺</span> Pemeriksaan</div>
+    <div class="ni" id="d-nav-wbp" onclick="showPage('wbp')"><span>👥</span> Data WBP</div>
+    <div class="ni" id="d-nav-riw" onclick="showPage('riw')"><span>📋</span> Riwayat</div>
+    <div class="ni" id="d-nav-adm" onclick="showPage('adm')"><span>⚙️</span> Kelola</div>
+    <div class="sdiv"></div>
+    <div class="slbl">SHEET AKTIF</div>
+    <span id="sheetBadgeD" style="display:block;margin:.2rem .5rem .4rem;background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:7px;padding:.27rem .62rem;font-size:.76rem;font-weight:700;color:var(--t3)">—</span>
+    <div class="sdiv"></div>
+    <div class="ni" onclick="showMod('modPw');closeDrawer()"><span>🔑</span> Ganti Password</div>
+    <div class="ni" style="color:#dc2626" onclick="doLogout()"><span>🚪</span> Keluar</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="abody">
+    <!-- SIDEBAR DESKTOP -->
+    <aside class="sidebar">
+      <div class="ni on" id="nav-pem" onclick="showPage('pem')"><span>🩺</span> Pemeriksaan</div>
+      <div class="ni" id="nav-wbp" onclick="showPage('wbp')"><span>👥</span> Data WBP</div>
+      <div class="ni" id="nav-riw" onclick="showPage('riw')"><span>📋</span> Riwayat</div>
+      <div class="ni" id="nav-adm" onclick="showPage('adm')"><span>⚙️</span> Kelola</div>
+      <div class="sdiv"></div>
+      <div class="slbl">SHEET AKTIF</div>
+      <span id="sheetBadge">—</span>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- ══ PAGE: PEMERIKSAAN ══════════════════════════════ -->
+      <div class="page on" id="page-pem">
+        <!-- Stats -->
+        <div class="sgrid">
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,var(--t3),var(--t2))">
+            <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">TOTAL KUNJUNGAN</div>
+            <div class="snum" id="sTotal">—</div>
+            <div style="font-size:.63rem;opacity:.7;margin-top:.12rem" id="sSheet">—</div>
+          </div>
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">
+            <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">HARI INI</div>
+            <div class="snum" id="sToday">—</div>
+          </div>
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">
+            <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">TOTAL WBP</div>
+            <div class="snum" id="sWbp">—</div>
+          </div>
+        </div>
+
+        <div id="pemGrid" style="display:grid;gap:1rem">
+          <!-- LEFT -->
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <!-- Search box -->
+            <div class="card lzy vs" style="padding:1.2rem">
+              <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.85rem;font-size:.9rem">🔍 Cari WBP Terdaftar</h3>
+              <div style="position:relative">
+                <input type="text" id="srchInp" class="f" placeholder="Nama / No.Reg / No.KTP / No.BPJS..." style="padding-right:4.2rem" onkeydown="if(event.key==='Enter')doSearch()">
+                <button onclick="doSearch()" style="position:absolute;right:.38rem;top:50%;transform:translateY(-50%);background:var(--t2);color:#fff;border:none;padding:.37rem .75rem;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer">CARI</button>
+              </div>
+              <!-- WBP Found -->
+              <div id="wbpFound" style="display:none;margin-top:.8rem;background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:11px;padding:.85rem">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.35rem">
+                  <span class="badge bt">WBP Ditemukan ✓</span>
+                  <button onclick="clearSrch()" style="background:none;border:none;color:var(--li);cursor:pointer;font-size:.8rem;line-height:1">✕</button>
+                </div>
+                <div id="wbpFoundInfo" style="font-size:.81rem;color:#334155;line-height:1.6"></div>
+              </div>
+              <!-- Not Found -->
+              <div id="wbpNF" style="display:none;margin-top:.8rem;background:#fef2f2;border:1px solid #fecaca;border-radius:11px;padding:.8rem;text-align:center;font-size:.79rem;color:#dc2626">
+                ❌ WBP tidak ditemukan.<br>
+                <button onclick="showPage('wbp')" style="margin-top:.45rem;background:#dc2626;color:#fff;border:none;padding:.32rem .85rem;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer">+ Daftar WBP Baru</button>
+              </div>
+            </div>
+            <!-- Riwayat kunjungan pasien -->
+            <div class="card lzy vs" style="padding:1.2rem;flex:1">
+              <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.8rem;font-size:.9rem">📋 Riwayat Kunjungan</h3>
+              <div id="histList" style="max-height:380px;overflow-y:auto;padding-right:2px">
+                <div class="emp"><div class="ei">🔍</div><p style="font-size:.77rem">Cari WBP untuk melihat riwayat</p></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Form Pemeriksaan -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.35rem">
+              <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📝 Form Pemeriksaan</h3>
+              <div id="formMode" class="badge ba">Pilih WBP dulu</div>
+            </div>
+            <!-- Identitas WBP (readonly, dari search) -->
+            <div id="wbpIB" style="display:none" class="ibx">
+              <div class="stl">Identitas WBP (dari database)</div>
+              <div class="igrid">
+                <div class="ii"><span>No. Register</span><strong id="iReg">—</strong></div>
+                <div class="ii"><span>Nama</span><strong id="iNama">—</strong></div>
+                <div class="ii"><span>Tgl. Lahir</span><strong id="iTgl">—</strong></div>
+                <div class="ii"><span>Umur</span><strong id="iUmur">—</strong></div>
+                <div class="ii"><span>Jenis Kelamin</span><strong id="iJK">—</strong></div>
+                <div class="ii"><span>No. KTP</span><strong id="iKTP" style="font-size:.72rem">—</strong></div>
+                <div class="ii"><span>No. BPJS</span><strong id="iBPJS">—</strong></div>
+                <div class="ii"><span>Alergi Obat</span><strong id="iAlergi" style="color:#dc2626">—</strong></div>
+                <div class="ii"><span>Riwayat Penyakit</span><strong id="iRiw">—</strong></div>
+              </div>
+            </div>
+            <div id="wbpIE" style="background:#fef3c7;border:1px solid #fde68a;border-radius:11px;padding:.8rem;margin-bottom:.9rem;font-size:.79rem;color:#92400e;text-align:center">
+              ⚠️ Cari dan pilih WBP terlebih dahulu
+            </div>
+            <!-- Hidden: No.Reg & Nama WBP untuk dikirim ke server -->
+            <input type="hidden" id="fReg"><input type="hidden" id="fNama">
+
+            <div class="stl">Data Pemeriksaan</div>
+            <div class="g2">
+              <div class="fw s2"><label class="fl">Tanggal *</label><input type="date" id="fTgl" class="f"></div>
+              <div class="fw s2"><label class="fl">Keluhan Utama</label><textarea id="fKeluhan" class="f" rows="2" placeholder="Deskripsikan keluhan pasien..."></textarea></div>
+              <!-- Tekanan Darah: 2 field angka (sistol & diastol) -->
+              <div class="fw">
+                <label class="fl">Sistol (mmHg)</label>
+                <input type="number" id="fTDs" class="f" placeholder="120" min="0" max="300">
+              </div>
+              <div class="fw">
+                <label class="fl">Diastol (mmHg)</label>
+                <input type="number" id="fTDd" class="f" placeholder="80" min="0" max="200">
+              </div>
+              <div class="fw"><label class="fl">Suhu Tubuh (°C)</label><input type="number" id="fSuhu" class="f" placeholder="36.5" step="0.1" min="30" max="45"></div>
+              <div class="fw"><label class="fl">Berat Badan (kg)</label><input type="number" id="fBB" class="f" placeholder="60" step="0.5" min="0"></div>
+              <div class="fw s2"><label class="fl">Diagnosa</label><textarea id="fDiagnosa" class="f" rows="2" placeholder="Diagnosa dokter..."></textarea></div>
+              <div class="fw s2">
+                <label class="fl">Therapy / Obat <span style="color:var(--li);font-weight:400">(pisahkan dengan koma)</span></label>
+                <textarea id="fTherapy" class="f" rows="2" placeholder="Paracetamol 500mg 3x1, Amoxicillin 500mg 3x1..." style="background:#f0fdfa;border-color:#99f6e4"></textarea>
+              </div>
+              <div class="fw s2"><label class="fl">Keterangan Tambahan</label><input type="text" id="fKet" class="f" placeholder="Catatan tambahan..."></div>
+              <div class="fw"><label class="fl">Update Alergi Obat</label><input type="text" id="fAlergiUpd" class="f" placeholder="Kosong = tidak diubah"></div>
+              <div class="fw"><label class="fl">Update Riwayat Penyakit</label><input type="text" id="fRiwUpd" class="f" placeholder="Kosong = tidak diubah"></div>
+            </div>
+            <button class="btn bp" style="width:100%;margin-top:.4rem" onclick="doSave()" id="saveBtn" disabled>💾 SIMPAN PEMERIKSAAN</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: DATA WBP ════════════════════════════════════ -->
+      <div class="page" id="page-wbp">
+        <div id="wbpTopGrid" style="display:grid;gap:1rem;margin-bottom:1rem">
+          <!-- Form tambah/edit WBP -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;flex-wrap:wrap;gap:.35rem">
+              <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.9rem" id="wbpFT">👤 Tambah WBP Baru</h3>
+              <button class="btn bs" onclick="resetWbpForm()" style="font-size:.75rem;padding:.32rem .7rem">+ Reset</button>
+            </div>
+            <input type="hidden" id="wbpEI">
+            <div class="g2">
+              <div class="fw"><label class="fl">No. Register * (unik)</label><input type="text" id="wReg" class="f" placeholder="REG-001"></div>
+              <div class="fw"><label class="fl">No. KTP * (unik)</label><input type="text" id="wKTP" class="f" placeholder="16 digit NIK" maxlength="16"></div>
+              <div class="fw s2"><label class="fl">Nama Lengkap *</label><input type="text" id="wNama" class="f" placeholder="Nama sesuai identitas"></div>
+              <div class="fw"><label class="fl">Tanggal Lahir *</label><input type="date" id="wTgl" class="f" oninput="autoAge('wTgl','wUmur')"></div>
+              <div class="fw"><label class="fl">Umur (otomatis)</label><input type="text" id="wUmur" class="f" readonly placeholder="—"></div>
+              <div class="fw"><label class="fl">Jenis Kelamin</label><select id="wJK" class="f"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+              <div class="fw"><label class="fl">No. BPJS (unik jika diisi)</label><input type="text" id="wBPJS" class="f" placeholder="Opsional"></div>
+              <div class="fw s2"><label class="fl">Alergi Obat</label><input type="text" id="wAlergi" class="f" placeholder="Mis: Penisilin, Sulfa..."></div>
+              <div class="fw s2"><label class="fl">Riwayat Penyakit</label><input type="text" id="wRiw" class="f" placeholder="Mis: Hipertensi, Diabetes..."></div>
+            </div>
+            <button class="btn bp" style="width:100%" onclick="saveWbp()" id="wbpSaveBtn">💾 Simpan Data WBP</button>
+          </div>
+          <!-- Info panel -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.85rem;font-size:.9rem">ℹ️ Petunjuk</h3>
+            <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.81rem;color:#475569;line-height:1.65">
+              <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">📌 Halaman ini</strong> untuk mendaftarkan identitas WBP. Isi sekali, digunakan selamanya.</div>
+              <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">🎂 Umur otomatis</strong> dihitung dari tanggal lahir.</div>
+              <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">🔒 No.Reg, No.KTP, No.BPJS</strong> bersifat unik — tidak bisa duplikat.</div>
+              <div style="background:#fef3c7;border-radius:9px;padding:.75rem"><strong style="color:#d97706">⚠️ Alergi Obat & Riwayat Penyakit</strong> disimpan di kolom terpisah (G & H) di spreadsheet.</div>
+            </div>
+          </div>
+        </div>
+        <!-- Tabel WBP -->
+        <div class="card lzy vs" style="padding:1.25rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.6rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📋 Daftar WBP Terdaftar</h3>
+            <div style="display:flex;gap:.45rem;align-items:center;flex-wrap:wrap">
+              <input type="text" id="wbpSrch" class="f" placeholder="Cari..." style="width:160px" oninput="wbpSF()">
+              <button class="btn bex" onclick="expWbp()">⬇ Excel</button>
+              <button class="btn bp" onclick="pgLoaded['wbp']=false;inv('wbp');loadWbp()" style="padding:.42rem .85rem;font-size:.78rem">↻</button>
+            </div>
+          </div>
+          <div class="twrap tbl-card">
+            <table class="tbl">
+              <thead><tr>
+                <th>#</th><th>No.Reg</th><th>Nama</th><th>Tgl Lahir</th><th>Umur</th><th>JK</th>
+                <th>No. KTP</th><th>No. BPJS</th><th>Alergi Obat</th><th>Riwayat Penyakit</th><th>Aksi</th>
+              </tr></thead>
+              <tbody id="wbpBd"><tr><td colspan="11" style="padding:2rem;text-align:center;color:var(--li)">Belum dimuat — klik ↻</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pgwrap"><span class="pginf" id="wbpInf"></span><div class="pgbtns" id="wbpPgs"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: RIWAYAT ═════════════════════════════════════ -->
+      <div class="page" id="page-riw">
+        <div class="card lzy vs" style="padding:1.25rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.6rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📋 Riwayat Kunjungan</h3>
+            <div style="display:flex;gap:.45rem;align-items:center;flex-wrap:wrap">
+              <input type="text" id="riwSrch" class="f" placeholder="Cari nama / diagnosa..." style="width:175px" oninput="riwSF()">
+              <button class="btn bex" onclick="expRiw()">⬇ Excel</button>
+              <button class="btn bp" onclick="pgLoaded['riw']=false;inv('visits');loadVisits()" style="padding:.42rem .85rem;font-size:.78rem">↻</button>
+            </div>
+          </div>
+          <div class="twrap tbl-card">
+            <table class="tbl">
+              <thead><tr>
+                <th>Tanggal</th><th>No.Reg</th><th>No. BPJS</th><th>No. KTP</th><th>Nama WBP</th>
+                <th>Umur</th><th>Diagnosa</th><th>Therapy / Obat</th><th>Aksi</th>
+              </tr></thead>
+              <tbody id="riwBd"><tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--li)">Belum dimuat — klik ↻</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pgwrap"><span class="pginf" id="riwInf"></span><div class="pgbtns" id="riwPgs"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: KELOLA ══════════════════════════════════════ -->
+      <div class="page" id="page-adm">
+        <div id="admGrid" style="display:grid;gap:1rem">
+          <!-- Sheet Manager -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">📂 Kelola Sheet Tahun</h3>
+            <div id="sheetList" style="margin-bottom:.85rem"></div>
+            <div style="display:flex;gap:.5rem;margin-bottom:.85rem">
+              <button class="btn bp" id="btnAktifkan" onclick="aktivasiSheet()" style="flex:1;font-size:.8rem" disabled>✅ Aktifkan Terpilih</button>
+              <button class="btn bd" id="btnHapus" onclick="delSheet()" style="flex:1;font-size:.8rem" disabled>🗑️ Hapus Terpilih</button>
+            </div>
+            <div style="background:#f0fdfa;border-radius:11px;padding:.9rem">
+              <div style="font-size:.69rem;font-weight:700;color:var(--li);margin-bottom:.45rem">BUAT SHEET BARU (Format: Data YYYY)</div>
+              <div style="display:flex;gap:.45rem">
+                <input type="text" id="newYear" class="f" placeholder="2027" maxlength="4" style="flex:1">
+                <button class="btn bp" onclick="addSheet()" style="padding:.6rem .875rem;font-size:.8rem;white-space:nowrap">+ Buat</button>
+              </div>
+            </div>
+          </div>
+          <!-- User Manager -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">👤 Manajemen User</h3>
+            <div class="fw"><label class="fl">USERNAME BARU</label><input type="text" id="newUsr" class="f" placeholder="username"></div>
+            <div class="fw"><label class="fl">PASSWORD</label><input type="password" id="newPwd" class="f" placeholder="password"></div>
+            <button class="btn bp" onclick="addUser()" style="width:100%;margin-bottom:.875rem">+ Tambah User</button>
+            <div id="userList"></div>
+            <div style="border-top:1px solid var(--bd);margin-top:.875rem;padding-top:.875rem">
+              <div style="font-size:.69rem;font-weight:700;color:var(--li);margin-bottom:.5rem">GANTI PASSWORD SAYA</div>
+              <div class="fw"><label class="fl">Password Lama</label><input type="password" id="pw2o" class="f"></div>
+              <div class="fw"><label class="fl">Password Baru</label><input type="password" id="pw2n" class="f"></div>
+              <div class="fw"><label class="fl">Konfirmasi</label><input type="password" id="pw2c" class="f"></div>
+              <button class="btn bp" onclick="doCP2()" style="width:100%">🔑 Simpan Password</button>
+            </div>
+          </div>
+          <!-- API URL Config -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:.85rem;font-size:.92rem">🔗 Konfigurasi URL API</h3>
+            <div class="fw"><label class="fl">URL GOOGLE APPS SCRIPT WEB APP</label><input type="url" id="apiUrlInp" class="f" placeholder="https://script.google.com/macros/s/..."></div>
+            <button class="btn bp" onclick="saveApiUrl()" style="width:100%">💾 Simpan URL</button>
+            <p style="font-size:.72rem;color:var(--li);margin-top:.55rem">URL disimpan di browser (localStorage) <strong>dan</strong> di sheet "config" spreadsheet.</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="fin">
+      <div style="display:flex;align-items:center;gap:.65rem">
+        <span style="font-size:1.2rem">🏥</span>
+        <div>
+          <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:.88rem;letter-spacing:.5px">LAK3SA KLINIK</div>
+          <div style="font-size:.68rem;opacity:.75">Lapas Kelas III Saparua</div>
+        </div>
+      </div>
+      <div style="font-size:.7rem;opacity:.55;text-align:right">Sistem Informasi Kesehatan Terintegrasi<br>© 2026 Lapas Kelas III Saparua</div>
+    </div>
+  </footer>
+
+  <!-- BOTTOM NAV (mobile) -->
+  <nav id="mobNav" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-top:1px solid var(--bd);padding:.35rem 0 calc(.35rem + env(safe-area-inset-bottom,0px))">
+    <div style="display:flex">
+      <button class="mni on" id="mob-pem" onclick="showPage('pem')"><span class="mic">🩺</span>Periksa</button>
+      <button class="mni" id="mob-wbp" onclick="showPage('wbp')"><span class="mic">👥</span>WBP</button>
+      <button class="mni" id="mob-riw" onclick="showPage('riw')"><span class="mic">📋</span>Riwayat</button>
+      <button class="mni" id="mob-adm" onclick="showPage('adm')"><span class="mic">⚙️</span>Kelola</button>
+    </div>
+  </nav>
+</div>
+
+<!-- ══ MODAL: Ganti Password (topbar) ════════════════════════ -->
+<div class="mo" id="modPw">
+  <div class="mb" style="max-width:440px">
+    <div class="mt">🔑 Ganti Password</div>
+    <div class="fw"><label class="fl">PASSWORD LAMA</label><input type="password" id="pwo" class="f"></div>
+    <div class="fw"><label class="fl">PASSWORD BARU</label><input type="password" id="pwn" class="f"></div>
+    <div class="fw"><label class="fl">KONFIRMASI PASSWORD BARU</label><input type="password" id="pwc" class="f"></div>
+    <div class="mft">
+      <button class="btn bs" style="flex:1" onclick="closeMod('modPw')">Batal</button>
+      <button class="btn bp" style="flex:1" onclick="doCP()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Edit WBP ═══════════════════════════════════════ -->
+<div class="mo" id="modEW">
+  <div class="mb">
+    <div class="mt">✏️ Edit Data WBP</div>
+    <input type="hidden" id="ewIdx">
+    <div class="g2">
+      <div class="fw"><label class="fl">No. Register (unik)</label><input type="text" id="ewReg" class="f"></div>
+      <div class="fw"><label class="fl">No. KTP (unik)</label><input type="text" id="ewKTP" class="f"></div>
+      <div class="fw s2"><label class="fl">Nama Lengkap</label><input type="text" id="ewNama" class="f"></div>
+      <div class="fw"><label class="fl">Tanggal Lahir</label><input type="date" id="ewTgl" class="f" oninput="autoAge('ewTgl','ewUmur')"></div>
+      <div class="fw"><label class="fl">Umur (otomatis)</label><input type="text" id="ewUmur" class="f" readonly></div>
+      <div class="fw"><label class="fl">Jenis Kelamin</label><select id="ewJK" class="f"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+      <div class="fw"><label class="fl">No. BPJS (unik jika diisi)</label><input type="text" id="ewBPJS" class="f"></div>
+      <div class="fw s2"><label class="fl">Alergi Obat</label><input type="text" id="ewAlergi" class="f"></div>
+      <div class="fw s2"><label class="fl">Riwayat Penyakit</label><input type="text" id="ewRiw" class="f"></div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" style="flex:1" onclick="closeMod('modEW')">Batal</button>
+      <button class="btn bp" style="flex:1" onclick="updWbpMod()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Detail Kunjungan ══════════════════════════════ -->
+<div class="mo" id="modDV">
+  <div class="mb">
+    <div class="mt">👁 Detail Kunjungan</div>
+    <div id="dvBody"></div>
+    <div class="mft">
+      <button class="btn bp" style="flex:1" onclick="closeMod('modDV')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Edit Kunjungan ════════════════════════════════ -->
+<div class="mo" id="modEV">
+  <div class="mb">
+    <div class="mt">✏️ Edit Data Kunjungan</div>
+    <input type="hidden" id="evIdx">
+    <div class="g2">
+      <div class="fw"><label class="fl">Tanggal</label><input type="date" id="evTgl" class="f"></div>
+      <div class="fw"><label class="fl">No. Reg WBP</label><input type="text" id="evReg" class="f" readonly></div>
+      <div class="fw s2"><label class="fl">Keluhan</label><textarea id="evKel" class="f" rows="2"></textarea></div>
+      <div class="fw"><label class="fl">Sistol (mmHg)</label><input type="number" id="evTDs" class="f" placeholder="120"></div>
+      <div class="fw"><label class="fl">Diastol (mmHg)</label><input type="number" id="evTDd" class="f" placeholder="80"></div>
+      <div class="fw"><label class="fl">Suhu (°C)</label><input type="number" id="evSuhu" class="f" step="0.1"></div>
+      <div class="fw"><label class="fl">Berat Badan (kg)</label><input type="number" id="evBB" class="f" step="0.5"></div>
+      <div class="fw s2"><label class="fl">Diagnosa</label><textarea id="evDiag" class="f" rows="2"></textarea></div>
+      <div class="fw s2"><label class="fl">Therapy / Obat <span style="color:var(--li);font-weight:400">(pisah koma)</span></label><textarea id="evTher" class="f" rows="2"></textarea></div>
+      <div class="fw s2"><label class="fl">Keterangan</label><input type="text" id="evKet" class="f"></div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" style="flex:1" onclick="closeMod('modEV')">Batal</button>
+      <button class="btn bp" style="flex:1" onclick="updVisit()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

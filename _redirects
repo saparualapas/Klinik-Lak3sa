@@ -1,0 +1,7 @@
+# Cloudflare Pages redirect config
+# File ini wajib ada di root folder deploy
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
