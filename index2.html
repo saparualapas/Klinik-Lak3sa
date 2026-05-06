@@ -474,8 +474,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
             </div>
             <input type="hidden" id="wbpEI">
             <div class="g2">
-              <div class="fw"><label class="fl">No. Register <span style="color:var(--li);font-weight:400">(opsional, unik)</span></label><input type="text" id="wReg" class="f" placeholder="REG-001 — boleh kosong"></div>
-              <div class="fw"><label class="fl">No. KTP <span style="color:var(--li);font-weight:400">(opsional, unik)</span></label><input type="text" id="wKTP" class="f" placeholder="16 digit NIK" maxlength="16"></div>
+              <div class="fw"><label class="fl">No. Register * (unik)</label><input type="text" id="wReg" class="f" placeholder="REG-001"></div>
+              <div class="fw"><label class="fl">No. KTP * (unik)</label><input type="text" id="wKTP" class="f" placeholder="16 digit NIK" maxlength="16"></div>
               <div class="fw s2"><label class="fl">Nama Lengkap *</label><input type="text" id="wNama" class="f" placeholder="Nama sesuai identitas"></div>
               <div class="fw"><label class="fl">Tanggal Lahir *</label><input type="date" id="wTgl" class="f" oninput="autoAge('wTgl','wUmur')"></div>
               <div class="fw"><label class="fl">Umur (otomatis)</label><input type="text" id="wUmur" class="f" readonly placeholder="—"></div>
@@ -492,7 +492,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
             <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.81rem;color:#475569;line-height:1.65">
               <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">📌 Halaman ini</strong> untuk mendaftarkan identitas WBP. Isi sekali, digunakan selamanya.</div>
               <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">🎂 Umur otomatis</strong> dihitung dari tanggal lahir.</div>
-              <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">📋 Nama & Tgl Lahir</strong> wajib diisi. No.Reg, No.KTP, No.BPJS bersifat opsional — jika diisi harus unik.</div>
+              <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">🔒 No.Reg, No.KTP, No.BPJS</strong> bersifat unik — tidak bisa duplikat.</div>
               <div style="background:#fef3c7;border-radius:9px;padding:.75rem"><strong style="color:#d97706">⚠️ Alergi Obat & Riwayat Penyakit</strong> disimpan di kolom terpisah (G & H) di spreadsheet.</div>
             </div>
           </div>
@@ -563,14 +563,20 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
               </div>
             </div>
           </div>
-          <!-- Password -->
+          <!-- User Manager -->
           <div class="card lzy vs" style="padding:1.25rem">
-            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">🔑 Ganti Password</h3>
-            <div class="fw"><label class="fl">Password Lama</label><input type="password" id="pw2o" class="f"></div>
-            <div class="fw"><label class="fl">Password Baru</label><input type="password" id="pw2n" class="f"></div>
-            <div class="fw"><label class="fl">Konfirmasi</label><input type="password" id="pw2c" class="f"></div>
-            <button class="btn bp" onclick="doCP2()" style="width:100%">🔑 Simpan Password</button>
-            <p style="font-size:.71rem;color:var(--li);margin-top:.55rem">⚠️ Untuk menambah atau menghapus user, edit langsung sheet "users" di Google Sheets.</p>
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">👤 Manajemen User</h3>
+            <div class="fw"><label class="fl">USERNAME BARU</label><input type="text" id="newUsr" class="f" placeholder="username"></div>
+            <div class="fw"><label class="fl">PASSWORD</label><input type="password" id="newPwd" class="f" placeholder="password"></div>
+            <button class="btn bp" onclick="addUser()" style="width:100%;margin-bottom:.875rem">+ Tambah User</button>
+            <div id="userList"></div>
+            <div style="border-top:1px solid var(--bd);margin-top:.875rem;padding-top:.875rem">
+              <div style="font-size:.69rem;font-weight:700;color:var(--li);margin-bottom:.5rem">GANTI PASSWORD SAYA</div>
+              <div class="fw"><label class="fl">Password Lama</label><input type="password" id="pw2o" class="f"></div>
+              <div class="fw"><label class="fl">Password Baru</label><input type="password" id="pw2n" class="f"></div>
+              <div class="fw"><label class="fl">Konfirmasi</label><input type="password" id="pw2c" class="f"></div>
+              <button class="btn bp" onclick="doCP2()" style="width:100%">🔑 Simpan Password</button>
+            </div>
           </div>
           <!-- API URL Config -->
           <div class="card lzy vs" style="padding:1.25rem">

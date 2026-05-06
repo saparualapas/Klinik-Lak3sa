@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  LAK3SA KLINIK — Code.gs  FINAL v4
+//  LAK3SA KLINIK — Code.gs  FINAL v3
 //  Lapas Kelas III Saparua
 //
 //  ╔══════════════════════════════════════════════════════════════╗
@@ -12,28 +12,65 @@
 //  ║   A: Username     B: Password                                ║
 //  ╠══════════════════════════════════════════════════════════════╣
 //  ║  Sheet "patients"  — 8 KOLOM (A–H)                          ║
-//  ║   0 No.Register  1 No.KTP  2 No.BPJS  3 Nama                ║
-//  ║   4 TglLahir  5 JK  6 Alergi  7 Riwayat                     ║
+//  ║  Idx  Kol  Header                                            ║
+//  ║   0    A   No. Register      ← UNIK                         ║
+//  ║   1    B   No. KTP           ← UNIK                         ║
+//  ║   2    C   No. BPJS          ← UNIK (boleh kosong)          ║
+//  ║   3    D   Nama Lengkap                                      ║
+//  ║   4    E   Tanggal Lahir     (yyyy-MM-dd)                    ║
+//  ║   5    F   Jenis Kelamin     (L / P)                         ║
+//  ║   6    G   Alergi Obat                                       ║
+//  ║   7    H   Riwayat Penyakit                                  ║
 //  ╠══════════════════════════════════════════════════════════════╣
 //  ║  Sheet "Data YYYY"  — 10 KOLOM (A–J)                        ║
-//  ║   0 Tanggal  1 No.Reg  2 Nama  3 Keluhan  4 TD               ║
-//  ║   5 Suhu  6 BB  7 Diagnosa  8 Therapy  9 Keterangan          ║
+//  ║  Idx  Kol  Header                                            ║
+//  ║   0    A   Tanggal           (yyyy-MM-dd)                    ║
+//  ║   1    B   No. Reg WBP       FK → patients[0]               ║
+//  ║   2    C   Nama WBP          dari patients[3]               ║
+//  ║   3    D   Keluhan                                           ║
+//  ║   4    E   Tekanan Darah     angka "120/80"                  ║
+//  ║   5    F   Suhu Tubuh (°C)   angka "36.5"                   ║
+//  ║   6    G   Berat Badan (kg)  angka "60"                      ║
+//  ║   7    H   Diagnosa                                          ║
+//  ║   8    I   Therapy / Obat    pisah koma                      ║
+//  ║   9    J   Keterangan                                        ║
 //  ╚══════════════════════════════════════════════════════════════╝
 //
 //  CARA SETUP:
-//  1. Paste file ini ke Apps Script → Deploy → Web App → Anyone
-//  2. Copy URL deploy → masukkan ke web app sekali saja
-//  3. Login dengan username & password dari sheet "users"
+//  1. Paste file ini ke Apps Script
+//  2. Jalankan fungsi initSheets()
+//  3. Deploy → New Deployment → Web App → Anyone → copy URL
+//  4. Di web: menu Kelola → isi URL → Simpan
+//  5. Pilih sheet → klik Aktifkan
 // ════════════════════════════════════════════════════════════════
 
 const SS = SpreadsheetApp.getActiveSpreadsheet();
-const TZ = 'Asia/Jayapura'; // WIT UTC+9
 
 // ── HEADER ARRAYS ─────────────────────────────────────────────
-const HC = ['key', 'value'];
-const HU = ['Username', 'Password'];
-const HP = ['No. Register','No. KTP','No. BPJS','Nama Lengkap','Tanggal Lahir','Jenis Kelamin','Alergi Obat','Riwayat Penyakit'];
-const HV = ['Tanggal','No. Reg WBP','Nama WBP','Keluhan','Tekanan Darah','Suhu Tubuh (°C)','Berat Badan (kg)','Diagnosa','Therapy / Obat','Keterangan'];
+const HC = ['key', 'value'];                    // config
+const HU = ['Username', 'Password'];            // users
+const HP = [                                    // patients — 8 col
+  'No. Register',    // 0 A
+  'No. KTP',         // 1 B
+  'No. BPJS',        // 2 C
+  'Nama Lengkap',    // 3 D
+  'Tanggal Lahir',   // 4 E
+  'Jenis Kelamin',   // 5 F
+  'Alergi Obat',     // 6 G
+  'Riwayat Penyakit' // 7 H
+];
+const HV = [                                    // visits — 10 col
+  'Tanggal',           //  0 A
+  'No. Reg WBP',       //  1 B
+  'Nama WBP',          //  2 C
+  'Keluhan',           //  3 D
+  'Tekanan Darah',     //  4 E
+  'Suhu Tubuh (°C)',   //  5 F
+  'Berat Badan (kg)',  //  6 G
+  'Diagnosa',          //  7 H
+  'Therapy / Obat',    //  8 I
+  'Keterangan'         //  9 J
+];
 
 // ── HELPERS ───────────────────────────────────────────────────
 function fmtDate(v) {
@@ -41,7 +78,7 @@ function fmtDate(v) {
   try {
     const d = (v instanceof Date) ? v : new Date(v);
     if (isNaN(d.getTime())) return String(v);
-    return Utilities.formatDate(d, TZ, 'yyyy-MM-dd');
+    return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
   } catch(e) { return String(v); }
 }
 
@@ -66,6 +103,7 @@ function makeSheet(name, headers) {
   return s;
 }
 
+// Baca config
 function getConfig(key) {
   const s = SS.getSheetByName('config');
   if (!s || s.getLastRow() < 2) return '';
@@ -86,79 +124,74 @@ function setConfig(key, value) {
   s.appendRow([key, value]);
 }
 
+// Baca patients — kembalikan array of arrays
 function readPatients() {
   const s = makeSheet('patients', HP);
   if (s.getLastRow() < 2) return [];
   return s.getRange(2, 1, s.getLastRow() - 1, HP.length).getValues().map(r => {
     const row = [...r];
-    row[4] = fmtDate(row[4]);
+    row[4] = fmtDate(row[4]); // Tanggal Lahir
     return row;
   });
 }
 
+// Map No.Reg → patient row untuk JOIN
 function buildPatientMap() {
   const map = {};
   readPatients().forEach(r => { map[String(r[0]).trim()] = r; });
   return map;
 }
 
+// Baca kunjungan dari sheet tertentu
 function readVisits(sheetName) {
   const s = SS.getSheetByName(sheetName);
   if (!s || s.getLastRow() < 2) return [];
   return s.getRange(2, 1, s.getLastRow() - 1, HV.length).getValues().map(r => {
     const row = [...r];
-    row[0] = fmtDate(row[0]);
+    row[0] = fmtDate(row[0]); // Tanggal kunjungan
     return row;
   });
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-// Hanya membuat sheet struktur + sheet Data tahun ini.
-// TIDAK membuat user otomatis — user diisi manual di sheet "users".
-// TIDAK menampilkan alert jika dijalankan dari web (doGet/doPost).
 function initSheets() {
   makeSheet('config', HC);
   makeSheet('users', HU);
   makeSheet('patients', HP);
+  const su = SS.getSheetByName('users');
+  if (su.getLastRow() < 2) su.appendRow(['admin', 'admin123']);
   const yr = String(new Date().getFullYear());
-  const sheetName = 'Data ' + yr;
-  makeSheet(sheetName, HV);
-  // Set active_sheet otomatis ke tahun sekarang jika belum ada
-  if (!getConfig('active_sheet')) setConfig('active_sheet', sheetName);
-  try {
-    SpreadsheetApp.getUi().alert(
-      '✅ Inisialisasi selesai!\n\n' +
-      'Sheet: config · users · patients · ' + sheetName + '\n\n' +
-      '⚠️ Tambahkan user di sheet "users" secara manual:\n' +
-      '   Kolom A: username\n' +
-      '   Kolom B: password\n\n' +
-      'Sheet aktif sudah diset ke "' + sheetName + '"'
-    );
-  } catch(e) {} // Bisa dijalankan tanpa UI
+  makeSheet('Data ' + yr, HV);
+  SpreadsheetApp.getUi().alert(
+    '✅ Inisialisasi selesai!\n\n' +
+    'Sheet: config · users · patients · Data ' + yr + '\n\n' +
+    'Login: admin / admin123\n' +
+    'Ganti password setelah login pertama!'
+  );
 }
 
 function resetAndInit() {
-  try {
-    const ui = SpreadsheetApp.getUi();
-    const ans = ui.alert('⚠️ Reset Struktur', 'Hapus & buat ulang sheet patients dan Data YYYY?\nData lama HILANG.', ui.ButtonSet.YES_NO);
-    if (ans !== ui.Button.YES) return;
-  } catch(e) {}
+  const ui = SpreadsheetApp.getUi();
+  const ans = ui.alert('⚠️ Reset Struktur', 'Hapus & buat ulang sheet patients dan Data YYYY?\nData lama HILANG.', ui.ButtonSet.YES_NO);
+  if (ans !== ui.Button.YES) return;
   const ps = SS.getSheetByName('patients');
   if (ps) SS.deleteSheet(ps);
   SS.getSheets().filter(s => /^Data \d{4}$/.test(s.getName())).forEach(s => SS.deleteSheet(s));
   initSheets();
+  ui.alert('✅ Selesai! Input ulang data WBP dan kunjungan.');
 }
 
 // ── ROUTING ───────────────────────────────────────────────────
 function doGet(e) {
   try {
     const a = e.parameter.action;
-    if (a === 'getConfig')   return handleGetConfig();
-    if (a === 'getWbp')      return out({ wbp: readPatients() });
-    if (a === 'getSheets')   return out({ sheets: SS.getSheets().map(s => s.getName()) });
-    if (a === 'getStats')    return handleGetStats(e.parameter.sheet);
-    if (a === 'search')      return handleSearch(e.parameter.q, e.parameter.sheet);
-    if (a === 'getAllVisits') return handleGetAllVisits(e.parameter.sheet);
+    if (a === 'getConfig')    return handleGetConfig();
+    if (a === 'getWbp')       return out({ wbp: readPatients() });
+    if (a === 'getSheets')    return out({ sheets: SS.getSheets().map(s => s.getName()) });
+    if (a === 'getStats')     return handleGetStats(e.parameter.sheet);
+    if (a === 'search')       return handleSearch(e.parameter.q, e.parameter.sheet);
+    if (a === 'getAllVisits')  return handleGetAllVisits(e.parameter.sheet);
+    if (a === 'getUsers')     return handleGetUsers();
     return out({ success: false, message: 'Unknown GET: ' + a });
   } catch(err) { return out({ success: false, message: err.toString() }); }
 }
@@ -179,27 +212,16 @@ function doPost(e) {
     if (a === 'deleteVisit')    return handleDeleteVisit(d);
     if (a === 'addSheet')       return handleAddSheet(d);
     if (a === 'deleteSheet')    return handleDeleteSheet(d);
+    if (a === 'addUser')        return handleAddUser(d);
+    if (a === 'deleteUser')     return handleDeleteUser(d);
     return out({ success: false, message: 'Unknown POST: ' + a });
   } catch(err) { return out({ success: false, message: err.toString() }); }
 }
 
 // ── CONFIG ────────────────────────────────────────────────────
 function handleGetConfig() {
-  // Auto-init sheets jika belum ada (akses pertama dari device baru)
-  makeSheet('config', HC);
-  makeSheet('users', HU);
-  makeSheet('patients', HP);
-  // Auto-set active_sheet ke tahun sekarang jika belum ada
-  let activeSheet = getConfig('active_sheet');
-  if (!activeSheet) {
-    const yr = String(new Date().getFullYear());
-    const sheetName = 'Data ' + yr;
-    makeSheet(sheetName, HV);
-    setConfig('active_sheet', sheetName);
-    activeSheet = sheetName;
-  }
   return out({
-    activeSheet: activeSheet,
+    activeSheet: getConfig('active_sheet'),
     apiUrl:      getConfig('api_url')
   });
 }
@@ -210,33 +232,30 @@ function handleSaveConfig(d) {
   return out({ success: true });
 }
 
-// Dipanggil saat pertama kali setup dari device baru
-// Menyimpan URL ke config agar device lain bisa ambil otomatis
+// Dipanggil saat PERTAMA KALI setup — simpan URL ke config
 function handleSetupUrl(d) {
   if (!d.url) return out({ success: false, message: 'URL kosong' });
   setConfig('api_url', d.url);
-  // Auto-init & set active_sheet
-  makeSheet('patients', HP);
-  let activeSheet = getConfig('active_sheet');
-  if (!activeSheet) {
+  // Sekalian set active_sheet ke tahun sekarang jika belum ada
+  const cur = getConfig('active_sheet');
+  if (!cur) {
     const yr = String(new Date().getFullYear());
     const sheetName = 'Data ' + yr;
+    // Buat sheet jika belum ada
     makeSheet(sheetName, HV);
     setConfig('active_sheet', sheetName);
-    activeSheet = sheetName;
   }
   return out({
-    success:     true,
-    activeSheet: activeSheet,
-    apiUrl:      d.url
+    success: true,
+    activeSheet: getConfig('active_sheet'),
+    apiUrl: getConfig('api_url')
   });
 }
 
 // ── AUTH ──────────────────────────────────────────────────────
 function handleLogin(d) {
   const s = SS.getSheetByName('users');
-  if (!s || s.getLastRow() < 2)
-    return out({ success: false, message: 'Belum ada user. Tambahkan di sheet "users" (A=username, B=password).' });
+  if (!s) return out({ success: false, message: 'Jalankan initSheets() dulu!' });
   const ok = s.getDataRange().getValues().slice(1).find(r =>
     String(r[0]).trim() === String(d.username).trim() &&
     String(r[1]).trim() === String(d.password).trim()
@@ -246,7 +265,6 @@ function handleLogin(d) {
 
 function handleChangePw(d) {
   const s = SS.getSheetByName('users');
-  if (!s) return out({ success: false, message: 'Sheet users tidak ada' });
   const rows = s.getDataRange().getValues();
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() === String(d.username).trim()) {
@@ -265,33 +283,30 @@ function handleAddWbp(d) {
   const w   = d.wbp;
   const all = readPatients();
 
-  // No.Register: cek unik hanya jika diisi
-  if (w.reg && w.reg.trim()) {
-    if (all.find(r => String(r[0]).trim() === String(w.reg).trim()))
-      return out({ success: false, message: 'No. Register "' + w.reg + '" sudah terdaftar!' });
-  }
+  // Cek uniqueness No. Register
+  if (all.find(r => String(r[0]).trim() === String(w.reg).trim()))
+    return out({ success: false, message: 'No. Register "' + w.reg + '" sudah terdaftar!' });
 
-  // No.KTP: cek unik hanya jika diisi
-  if (w.ktp && w.ktp.trim()) {
-    if (all.find(r => r[1] && String(r[1]).trim() === String(w.ktp).trim()))
-      return out({ success: false, message: 'No. KTP "' + w.ktp + '" sudah terdaftar!' });
-  }
+  // Cek uniqueness No. KTP
+  if (all.find(r => String(r[1]).trim() === String(w.ktp).trim()))
+    return out({ success: false, message: 'No. KTP "' + w.ktp + '" sudah terdaftar!' });
 
-  // No.BPJS: cek unik hanya jika diisi
+  // Cek uniqueness No. BPJS (hanya jika diisi)
   if (w.bpjs && w.bpjs.trim()) {
     if (all.find(r => r[2] && String(r[2]).trim() === String(w.bpjs).trim()))
       return out({ success: false, message: 'No. BPJS "' + w.bpjs + '" sudah terdaftar!' });
   }
 
+  // Append — sesuai HP[0..7]
   s.appendRow([
-    w.reg    || '',
-    w.ktp    || '',
-    w.bpjs   || '',
-    w.nama,
-    w.tglLahir,
-    w.jk,
-    w.alergi  || '',
-    w.riwayat || ''
+    w.reg,       // 0 A No. Register
+    w.ktp,       // 1 B No. KTP
+    w.bpjs || '',// 2 C No. BPJS
+    w.nama,      // 3 D Nama Lengkap
+    w.tglLahir,  // 4 E Tanggal Lahir
+    w.jk,        // 5 F Jenis Kelamin
+    w.alergi || '',  // 6 G Alergi Obat
+    w.riwayat || ''  // 7 H Riwayat Penyakit
   ]);
   return out({ success: true });
 }
@@ -299,35 +314,29 @@ function handleAddWbp(d) {
 function handleUpdateWbp(d) {
   const s = makeSheet('patients', HP);
   const w = d.wbp;
-  const rowNum = parseInt(d.idx) + 2;
+  const rowNum = parseInt(d.idx) + 2; // +2: skip header, 0-based idx
   if (rowNum < 2) return out({ success: false, message: 'Index tidak valid' });
 
-  const all    = readPatients();
+  const all = readPatients();
+
+  // Cek uniqueness — kecuali baris sendiri (idx)
   const others = all.filter((_, i) => i !== parseInt(d.idx));
 
-  // Cek unik hanya jika diisi
-  if (w.reg && w.reg.trim()) {
-    if (others.find(r => String(r[0]).trim() === String(w.reg).trim()))
-      return out({ success: false, message: 'No. Register "' + w.reg + '" sudah dipakai WBP lain!' });
-  }
-  if (w.ktp && w.ktp.trim()) {
-    if (others.find(r => r[1] && String(r[1]).trim() === String(w.ktp).trim()))
-      return out({ success: false, message: 'No. KTP "' + w.ktp + '" sudah dipakai WBP lain!' });
-  }
+  if (others.find(r => String(r[0]).trim() === String(w.reg).trim()))
+    return out({ success: false, message: 'No. Register "' + w.reg + '" sudah dipakai WBP lain!' });
+
+  if (others.find(r => String(r[1]).trim() === String(w.ktp).trim()))
+    return out({ success: false, message: 'No. KTP "' + w.ktp + '" sudah dipakai WBP lain!' });
+
   if (w.bpjs && w.bpjs.trim()) {
     if (others.find(r => r[2] && String(r[2]).trim() === String(w.bpjs).trim()))
       return out({ success: false, message: 'No. BPJS "' + w.bpjs + '" sudah dipakai WBP lain!' });
   }
 
   s.getRange(rowNum, 1, 1, HP.length).setValues([[
-    w.reg    || '',
-    w.ktp    || '',
-    w.bpjs   || '',
-    w.nama,
-    w.tglLahir,
-    w.jk,
-    w.alergi  || '',
-    w.riwayat || ''
+    w.reg, w.ktp, w.bpjs || '',
+    w.nama, w.tglLahir, w.jk,
+    w.alergi || '', w.riwayat || ''
   ]]);
   return out({ success: true });
 }
@@ -345,10 +354,10 @@ function handleSearch(q, sheetName) {
   if (!q) return out({ patient: null, history: [] });
   const ql = q.toLowerCase();
   const pts = readPatients().filter(r =>
-    String(r[0]).toLowerCase().includes(ql) ||
-    String(r[1]).toLowerCase().includes(ql) ||
-    String(r[2]).toLowerCase().includes(ql) ||
-    String(r[3]).toLowerCase().includes(ql)
+    String(r[0]).toLowerCase().includes(ql) ||  // No. Register
+    String(r[1]).toLowerCase().includes(ql) ||  // No. KTP
+    String(r[2]).toLowerCase().includes(ql) ||  // No. BPJS
+    String(r[3]).toLowerCase().includes(ql)     // Nama
   );
   const patient = pts[0] || null;
   let history = [];
@@ -366,6 +375,7 @@ function handleSaveVisit(d) {
   const vs = makeSheet(d.sheet, HV);
   const v  = d.visit;
 
+  // Update alergi/riwayat di patients jika ada perubahan
   if ((d.alergiUpdate || '').trim() || (d.riwayatUpdate || '').trim()) {
     const ps = makeSheet('patients', HP);
     if (ps.getLastRow() > 1) {
@@ -380,7 +390,19 @@ function handleSaveVisit(d) {
     }
   }
 
-  vs.appendRow([v.tanggal, d.wbpReg, v.nama, v.keluhan, v.td, v.suhu, v.bb, v.diagnosa, v.therapy, v.keterangan]);
+  // Append — sesuai HV[0..9]
+  vs.appendRow([
+    v.tanggal,   //  0 A Tanggal
+    d.wbpReg,    //  1 B No. Reg WBP
+    v.nama,      //  2 C Nama WBP
+    v.keluhan,   //  3 D Keluhan
+    v.td,        //  4 E Tekanan Darah
+    v.suhu,      //  5 F Suhu Tubuh
+    v.bb,        //  6 G Berat Badan
+    v.diagnosa,  //  7 H Diagnosa
+    v.therapy,   //  8 I Therapy / Obat
+    v.keterangan //  9 J Keterangan
+  ]);
   return out({ success: true });
 }
 
@@ -394,8 +416,16 @@ function handleUpdateVisit(d) {
   const v   = d.visit;
   const cur = vs.getRange(rowNum, 1, 1, HV.length).getValues()[0];
   vs.getRange(rowNum, 1, 1, HV.length).setValues([[
-    v.tanggal, cur[1], cur[2],
-    v.keluhan, v.td, v.suhu, v.bb, v.diagnosa, v.therapy, v.keterangan
+    v.tanggal,   //  0 A boleh diubah
+    cur[1],      //  1 B No. Reg WBP — tetap
+    cur[2],      //  2 C Nama WBP    — tetap
+    v.keluhan,   //  3 D
+    v.td,        //  4 E
+    v.suhu,      //  5 F
+    v.bb,        //  6 G
+    v.diagnosa,  //  7 H
+    v.therapy,   //  8 I
+    v.keterangan //  9 J
   ]]);
   return out({ success: true });
 }
@@ -417,13 +447,15 @@ function handleGetAllVisits(sheetName) {
   const visits = readVisits(sheetName);
   if (!visits.length) return out({ visits: [] });
   const pMap = buildPatientMap();
+  // Setiap row visit ditambahkan data JOIN dari patients:
+  // v[10]=KTP  v[11]=BPJS  v[12]=TglLahir  v[13]=JK  v[14]=Alergi  v[15]=Riwayat
   const joined = visits.map(v => {
     const p = pMap[String(v[1]).trim()] || null;
     return [
       ...v,
       p ? String(p[1] || '') : '',  // [10] No. KTP
       p ? String(p[2] || '') : '',  // [11] No. BPJS
-      p ? String(p[4] || '') : '',  // [12] Tanggal Lahir
+      p ? String(p[4] || '') : '',  // [12] Tanggal Lahir → hitung umur di FE
       p ? String(p[5] || '') : '',  // [13] Jenis Kelamin
       p ? String(p[6] || '') : '',  // [14] Alergi Obat
       p ? String(p[7] || '') : '',  // [15] Riwayat Penyakit
@@ -442,7 +474,7 @@ function handleGetStats(sheetName) {
     if (vs && vs.getLastRow() > 1) {
       const col = vs.getRange(2, 1, vs.getLastRow() - 1, 1).getValues();
       totalVisits = col.length;
-      const today = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
+      const today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
       todayVisits = col.filter(r => fmtDate(r[0]) === today).length;
     }
   }
@@ -465,11 +497,38 @@ function handleDeleteSheet(d) {
     return out({ success: false, message: 'Sheet sistem tidak bisa dihapus' });
   if (!/^Data \d{4}$/.test(d.name))
     return out({ success: false, message: 'Hanya sheet "Data YYYY" yang bisa dihapus' });
-  // Cek jika ini sheet aktif
-  if (d.name === getConfig('active_sheet'))
-    return out({ success: false, message: 'Sheet "' + d.name + '" sedang aktif. Aktifkan sheet lain dulu sebelum menghapus.' });
   const s = SS.getSheetByName(d.name);
   if (!s) return out({ success: false, message: 'Sheet tidak ditemukan' });
   SS.deleteSheet(s);
   return out({ success: true });
+}
+
+// ── USERS ─────────────────────────────────────────────────────
+function handleGetUsers() {
+  const s = SS.getSheetByName('users');
+  if (!s || s.getLastRow() < 2) return out({ users: [] });
+  return out({ users: s.getRange(2, 1, s.getLastRow() - 1, 1).getValues().map(r => String(r[0])) });
+}
+
+function handleAddUser(d) {
+  const s = SS.getSheetByName('users');
+  if (!s) return out({ success: false, message: 'Sheet users tidak ada' });
+  const rows = s.getLastRow() > 1 ? s.getRange(2, 1, s.getLastRow() - 1, 1).getValues() : [];
+  if (rows.find(r => String(r[0]).trim() === String(d.username).trim()))
+    return out({ success: false, message: 'Username sudah ada' });
+  s.appendRow([d.username, d.password]);
+  return out({ success: true });
+}
+
+function handleDeleteUser(d) {
+  const s = SS.getSheetByName('users');
+  if (!s) return out({ success: false, message: 'Sheet users tidak ada' });
+  const rows = s.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).trim() === String(d.username).trim()) {
+      s.deleteRow(i + 1);
+      return out({ success: true });
+    }
+  }
+  return out({ success: false, message: 'User tidak ditemukan' });
 }

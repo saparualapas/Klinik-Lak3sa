@@ -192,8 +192,8 @@ async function saveConfigToSheet(key, value) {
 }
 
 // ═══════════════ UTILS ════════════════════════════════════════
-// WIT = UTC+9 (Maluku / Jayapura)
-const WIT_OFFSET = 9 * 60;
+// WIT = UTC+9 (Maluku / Papua / Jayapura)
+const WIT_OFFSET = 9 * 60; // menit
 function nowWIT() {
   const d = new Date();
   return new Date(d.getTime() + (WIT_OFFSET - d.getTimezoneOffset()) * 60000);
@@ -285,17 +285,6 @@ function hideCrudSplash() {
   const el = document.getElementById('crudSplash');
   if (el) el.classList.remove('on');
 }
-
-// ═══════════════ CRUD SPLASH ══════════════════════════════════
-function showCrudSplash(msg) {
-  const el = document.getElementById('crudSplash');
-  const tx = document.getElementById('crudSplashMsg');
-  if (el) { if(tx) tx.textContent = msg || 'Memproses...'; el.classList.add('on'); }
-}
-function hideCrudSplash() {
-  const el = document.getElementById('crudSplash');
-  if (el) el.classList.remove('on');
-}
 const showMod  = id => document.getElementById(id).classList.add('op');
 const closeMod = id => document.getElementById(id).classList.remove('op');
 
@@ -327,6 +316,8 @@ async function api(params, method='GET') {
     throw e;
   }
 }
+
+// ═══════════════ AUTH ═════════════════════════════════════════
 async function doLogin() {
   const u = document.getElementById('login_u').value.trim();
   const p = document.getElementById('login_p').value;
@@ -656,8 +647,7 @@ async function saveWbp() {
   const ktp=document.getElementById('wKTP').value.trim();
   const nama=document.getElementById('wNama').value.trim();
   const tgl=document.getElementById('wTgl').value;
-  // Hanya Nama & Tgl Lahir yang wajib; Reg dan KTP boleh kosong
-  if (!nama||!tgl) { toast('Nama Lengkap dan Tanggal Lahir wajib diisi!','er'); return; }
+  if (!reg||!ktp||!nama||!tgl) { toast('No.Reg, KTP, Nama, Tgl Lahir wajib diisi!','er'); return; }
 
   const ei=document.getElementById('wbpEI').value;
   const payload={
@@ -891,6 +881,7 @@ function goPg(key,p){
 // ═══════════════ ADMIN ════════════════════════════════════════
 async function loadAdmData() {
   await loadSheets();
+  loadUsers();
   document.getElementById('apiUrlInp').value = API_URL;
 }
 
@@ -964,7 +955,7 @@ async function addSheet(){
 
 async function delSheet(){
   if(!selSheet){toast('Pilih sheet dulu!','er');return;}
-  if(selSheet===activeSheet){toast('❌ Sheet "'+selSheet+'" sedang aktif! Aktifkan sheet lain dulu sebelum menghapus.','er');return;}
+  if(selSheet===activeSheet){toast('Tidak bisa menghapus sheet yang sedang aktif!','er');return;}
   if(!confirm('Hapus sheet "'+selSheet+'"?\nSemua data di dalamnya akan hilang permanen!'))return;
   showCrudSplash('🗑️ Menghapus sheet "'+selSheet+'"...');
   const r=await api({action:'deleteSheet',name:selSheet},'POST');
