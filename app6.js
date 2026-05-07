@@ -112,29 +112,10 @@ function showApp() {
 window.addEventListener('resize', applyGrid);
 
 function lazyObs() {
-  // Observe semua .lzy yang belum .vs
   const o=new IntersectionObserver(es=>{
     es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vs');o.unobserve(e.target);}});
-  },{threshold:0.04,rootMargin:'0px 0px -30px 0px'});
-  document.querySelectorAll('.lzy:not(.vs)').forEach(el=>o.observe(el));
-}
-
-// Re-observe elemen baru setelah konten dimuat (misal setelah tab dibuka)
-function reObs() {
-  const o=new IntersectionObserver(es=>{
-    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vs');o.unobserve(e.target);}});
-  },{threshold:0.04,rootMargin:'0px 0px -30px 0px'});
-  document.querySelectorAll('.lzy:not(.vs)').forEach(el=>o.observe(el));
-}
-
-// Animasi baris tabel masuk satu per satu saat dirender
-function animateRows(tbodyId) {
-  const tbody=document.getElementById(tbodyId); if(!tbody) return;
-  tbody.querySelectorAll('tr').forEach((tr,i)=>{
-    tr.classList.remove('rv');
-    tr.style.transitionDelay=(i*0.035)+'s';
-    requestAnimationFrame(()=>requestAnimationFrame(()=>tr.classList.add('rv')));
-  });
+  },{threshold:0.04});
+  document.querySelectorAll('.lzy').forEach(el=>o.observe(el));
 }
 
 // ═══════════════ UTILS ═══════════════════════════════════════
@@ -315,7 +296,6 @@ function showPage(name){
   }
   setTimeout(()=>{
     document.querySelectorAll('#page-'+name+' .lzy:not(.vs)').forEach(el=>el.classList.add('vs'));
-    reObs();
     applyGrid();syncBadge();
   },40);
 }
@@ -517,7 +497,6 @@ function renderWbp(){
         '</div></td></tr>';
     }).join('');
   renderPg('wbp',pages,p);
-  animateRows('wbpBd');
 }
 
 const wbpSF=debounce(()=>{
@@ -765,7 +744,6 @@ function renderRiw() {
         '</tr>';
       }).join('');
   renderPg('riw', pages, p);
-  animateRows('riwBd');
 }
 
 const riwSF = debounce(() => { applyDateFilter(); });

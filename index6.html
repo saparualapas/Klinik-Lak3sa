@@ -69,10 +69,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .bd:hover{background:#fee2e2;}
 .bl2{background:#dbeafe;color:#1d4ed8;border:1.5px solid #bfdbfe;}
 .bsm{padding:.27rem .62rem;border-radius:7px;font-size:.73rem;}
-.bex{background:#f0fdfa;color:var(--t3);border:1.5px solid #99f6e4;border-radius:9px;padding:.42rem .85rem;font-size:.76rem;font-weight:600;}
+.bex{background:#f0fdfa;color:var(--t3);border:1.5px solid #99f6e4;border-radius:9px;padding:.42rem .85rem;font-size:.76rem;}
 .bex:hover{background:#ccfbf1;}
-.bex-dark{background:var(--t3);color:#fff!important;border-color:var(--t3);}
-.bex-dark:hover{background:#0f5e58;border-color:#0f5e58;}
 .sp2{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spR .7s linear infinite;display:inline-block;vertical-align:middle;}
 
 /* ══════════════ BADGES ═══════════════════════════════════════ */
@@ -130,23 +128,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);}
 @media(min-width:768px){.card{border-radius:18px;}}
 
-/* ══════════════ FILTER MODE BUTTONS ═════════════════════════ */
-.fmb{padding:.3rem .7rem;border:none;border-radius:8px;background:transparent;font-family:inherit;font-size:.72rem;font-weight:700;color:var(--mu);cursor:pointer;transition:all .15s;white-space:nowrap;}
-.fmb.on{background:var(--t3);color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.3);}
-.fmb:hover:not(.on){background:rgba(13,148,136,.1);color:var(--t3);}
-@media(max-width:600px){.fmb{padding:.25rem .48rem;font-size:.67rem;}}
-
-/* ══════════════ LAZY TABLE ROWS ══════════════════════════════ */
-/* Tabel row & card animasi masuk saat muncul di viewport */
-.tbl tbody tr{opacity:0;transform:translateY(5px);transition:opacity .25s ease,transform .25s ease;}
-.tbl tbody tr.rv{opacity:1;transform:translateY(0);}
-/* Semua card dimulai hidden, revealed by IntersectionObserver */
-.lzy{opacity:0;transform:translateY(12px);transition:opacity .38s ease,transform .38s ease;}
+/* ══════════════ LAZY ═════════════════════════════════════════ */
+.lzy{opacity:0;transform:translateY(10px);transition:opacity .38s ease,transform .38s ease;}
 .lzy.vs{opacity:1;transform:translateY(0);}
-/* Stagger untuk cards dalam grid */
-.lzy:nth-child(2){transition-delay:.07s;}
-.lzy:nth-child(3){transition-delay:.14s;}
-.lzy:nth-child(4){transition-delay:.21s;}
 
 /* ══════════════ STAT CARDS ═══════════════════════════════════ */
 .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.1rem;}
@@ -244,7 +228,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 /* ══════════════ FOOTER ══════════════════════════════════════ */
 .footer{background:linear-gradient(135deg,var(--t3),var(--t2));color:#fff;padding:1rem 1.5rem;}
 .fin{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
-@media(max-width:767px){.footer{margin-bottom:0;}}
+/* ══════════════ FILTER MODE BUTTONS ═════════════════════════ */
+.fmb{padding:.32rem .72rem;border:none;border-radius:8px;background:transparent;font-family:inherit;font-size:.72rem;font-weight:700;color:var(--mu);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.fmb.on{background:#0d9488;color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.25);}
+.fmb:hover:not(.on){background:rgba(13,148,136,.1);color:var(--t3);}
+
+@media(max-width:767px){.fmb{padding:.28rem .52rem;font-size:.68rem;}#riwFilterBar{padding:.65rem .75rem;}}
 
 /* ══════════════ CRUD SPLASH ══════════════════════════════════ */
 #crudSplash{position:fixed;inset:0;z-index:9990;background:rgba(15,23,42,.62);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
@@ -375,16 +364,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       <div class="page on" id="page-pem">
         <!-- Stats -->
         <div class="sgrid">
-          <div class="sc lzy" style="background:linear-gradient(135deg,var(--t3),var(--t2))">
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,var(--t3),var(--t2))">
             <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">TOTAL KUNJUNGAN</div>
             <div class="snum" id="sTotal">—</div>
             <div style="font-size:.63rem;opacity:.7;margin-top:.12rem" id="sSheet">—</div>
           </div>
-          <div class="sc lzy" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">
             <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">HARI INI</div>
             <div class="snum" id="sToday">—</div>
           </div>
-          <div class="sc lzy" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">
             <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">TOTAL WBP</div>
             <div class="snum" id="sWbp">—</div>
           </div>
@@ -394,7 +383,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
           <!-- LEFT -->
           <div style="display:flex;flex-direction:column;gap:1rem">
             <!-- Search box -->
-            <div class="card lzy" style="padding:1.2rem">
+            <div class="card lzy vs" style="padding:1.2rem">
               <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.85rem;font-size:.9rem">🔍 Cari WBP Terdaftar</h3>
               <div style="position:relative">
                 <input type="text" id="srchInp" class="f" placeholder="Nama / No.Reg / No.KTP / No.BPJS..." style="padding-right:4.2rem" onkeydown="if(event.key==='Enter')doSearch()">
@@ -415,7 +404,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
               </div>
             </div>
             <!-- Riwayat kunjungan pasien -->
-            <div class="card lzy" style="padding:1.2rem;flex:1">
+            <div class="card lzy vs" style="padding:1.2rem;flex:1">
               <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.8rem;font-size:.9rem">📋 Riwayat Kunjungan</h3>
               <div id="histList" style="max-height:380px;overflow-y:auto;padding-right:2px">
                 <div class="emp"><div class="ei">🔍</div><p style="font-size:.77rem">Cari WBP untuk melihat riwayat</p></div>
@@ -424,7 +413,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
           </div>
 
           <!-- RIGHT: Form Pemeriksaan -->
-          <div class="card lzy" style="padding:1.25rem">
+          <div class="card lzy vs" style="padding:1.25rem">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.35rem">
               <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📝 Form Pemeriksaan</h3>
               <div id="formMode" class="badge ba">Pilih WBP dulu</div>
@@ -483,7 +472,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       <div class="page" id="page-wbp">
         <div id="wbpTopGrid" style="display:grid;gap:1rem;margin-bottom:1rem">
           <!-- Form tambah/edit WBP -->
-          <div class="card lzy" style="padding:1.25rem">
+          <div class="card lzy vs" style="padding:1.25rem">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;flex-wrap:wrap;gap:.35rem">
               <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.9rem" id="wbpFT">👤 Tambah WBP Baru</h3>
               <button class="btn bs" onclick="resetWbpForm()" style="font-size:.75rem;padding:.32rem .7rem">+ Reset</button>
@@ -503,7 +492,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
             <button class="btn bp" style="width:100%" onclick="saveWbp()" id="wbpSaveBtn">💾 Simpan Data WBP</button>
           </div>
           <!-- Info panel -->
-          <div class="card lzy" style="padding:1.25rem">
+          <div class="card lzy vs" style="padding:1.25rem">
             <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.85rem;font-size:.9rem">ℹ️ Petunjuk</h3>
             <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.81rem;color:#475569;line-height:1.65">
               <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">📌 Halaman ini</strong> untuk mendaftarkan identitas WBP. Isi sekali, digunakan selamanya.</div>
@@ -514,7 +503,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
           </div>
         </div>
         <!-- Tabel WBP -->
-        <div class="card lzy" style="padding:1.25rem">
+        <div class="card lzy vs" style="padding:1.25rem">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.6rem">
             <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📋 Daftar WBP Terdaftar</h3>
             <div style="display:flex;gap:.45rem;align-items:center;flex-wrap:wrap">
@@ -538,53 +527,56 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 
       <!-- ══ PAGE: RIWAYAT ═════════════════════════════════════ -->
       <div class="page" id="page-riw">
-        <div class="card lzy" style="padding:1.25rem">
+        <div class="card lzy vs" style="padding:1.25rem">
 
-          <!-- Header -->
+          <!-- ── Header + Kontrol ── -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.6rem">
             <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📋 Riwayat Kunjungan</h3>
-            <button class="btn bp" onclick="pgLoaded['riw']=false;inv('visits');loadVisits()" style="padding:.42rem .85rem;font-size:.78rem" title="Refresh">↻ Refresh</button>
-          </div>
-
-          <!-- Filter tanggal -->
-          <div style="background:#f0fdfa;border-radius:13px;padding:.8rem .95rem;margin-bottom:.8rem">
-            <div style="display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin-bottom:.6rem">
-              <div style="display:flex;gap:.2rem;background:#e2faf7;border-radius:10px;padding:.18rem;flex-wrap:wrap">
-                <button id="fmBtnHari"    class="fmb on"  onclick="setFilterMode('hari')"   >Hari ini</button>
-                <button id="fmBtnKemarin" class="fmb"     onclick="setFilterMode('kemarin')">Kemarin</button>
-                <button id="fmBtnMinggu"  class="fmb"     onclick="setFilterMode('minggu')" >7 Hari</button>
-                <button id="fmBtnBulan"   class="fmb"     onclick="setFilterMode('bulan')"  >Bulan ini</button>
-                <button id="fmBtnRange"   class="fmb"     onclick="setFilterMode('range')"  >Rentang</button>
-                <button id="fmBtnSemua"   class="fmb"     onclick="setFilterMode('semua')"  >Semua</button>
-              </div>
-              <span id="riwFilterLabel" style="font-size:.74rem;font-weight:700;color:var(--t3);background:#ccfbf1;padding:.26rem .7rem;border-radius:99px;white-space:nowrap"></span>
-            </div>
-            <!-- Input rentang tanggal (hanya tampil saat mode Rentang) -->
-            <div id="rangeInputs" style="display:none;align-items:center;gap:.45rem;flex-wrap:wrap">
-              <input type="date" id="riwTglDari"  class="f" style="width:145px;font-size:.8rem" onchange="applyDateFilter()">
-              <span style="color:var(--mu);font-size:.82rem;font-weight:600">s/d</span>
-              <input type="date" id="riwTglSmpai" class="f" style="width:145px;font-size:.8rem" onchange="applyDateFilter()">
+            <div style="display:flex;gap:.45rem;align-items:center;flex-wrap:wrap">
+              <button class="btn bp" onclick="pgLoaded['riw']=false;inv('visits');loadVisits()" style="padding:.42rem .85rem;font-size:.78rem" title="Refresh">↻</button>
             </div>
           </div>
 
-          <!-- Info baris + search + download -->
+          <!-- ── Filter Bar ── -->
+          <div id="riwFilterBar" style="background:#f0fdfa;border-radius:14px;padding:.85rem 1rem;margin-bottom:.85rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:flex-end">
+            <!-- Filter Mode -->
+            <div style="display:flex;gap:.3rem;background:#e2faf7;border-radius:10px;padding:.2rem">
+              <button id="fmBtnHari"   class="fmb on" onclick="setFilterMode('hari')"   >Hari ini</button>
+              <button id="fmBtnKemarin" class="fmb"   onclick="setFilterMode('kemarin')">Kemarin</button>
+              <button id="fmBtnMinggu" class="fmb"    onclick="setFilterMode('minggu')" >7 Hari</button>
+              <button id="fmBtnBulan"  class="fmb"    onclick="setFilterMode('bulan')"  >Bulan ini</button>
+              <button id="fmBtnRange"  class="fmb"    onclick="setFilterMode('range')"  >Rentang</button>
+              <button id="fmBtnSemua"  class="fmb"    onclick="setFilterMode('semua')"  >Semua</button>
+            </div>
+            <!-- Rentang Tanggal (tampil hanya saat mode range) -->
+            <div id="rangeInputs" style="display:none;align-items:center;gap:.4rem;flex-wrap:wrap">
+              <input type="date" id="riwTglDari" class="f" style="width:140px;font-size:.8rem" onchange="applyDateFilter()">
+              <span style="color:var(--mu);font-size:.8rem">s/d</span>
+              <input type="date" id="riwTglSmpai" class="f" style="width:140px;font-size:.8rem" onchange="applyDateFilter()">
+            </div>
+            <!-- Label tanggal aktif -->
+            <span id="riwFilterLabel" style="font-size:.75rem;font-weight:700;color:var(--t3);background:#ccfbf1;padding:.28rem .7rem;border-radius:99px;white-space:nowrap"></span>
+            <!-- Pencarian nama -->
+            <input type="text" id="riwSrch" class="f" placeholder="🔍 Cari nama / diagnosa..." style="width:175px;font-size:.82rem;margin-left:auto" oninput="riwSF()">
+          </div>
+
+          <!-- ── Info + Aksi ── -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.45rem">
-            <span class="pginf" id="riwInf" style="font-size:.75rem;color:var(--mu)"></span>
-            <div style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
-              <input type="text" id="riwSrch" class="f" placeholder="🔍 Cari nama / diagnosa..." style="width:170px;font-size:.8rem" oninput="riwSF()">
-              <button class="btn bex"      onclick="expRiwFilter()" title="Download Excel sesuai filter aktif">⬇ Filter aktif</button>
-              <button class="btn bex bex-dark" onclick="expRiw()"       title="Download semua data">⬇ Semua</button>
+            <span class="pginf" id="riwInf"></span>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+              <button class="btn bex" onclick="expRiwFilter()" title="Download Excel sesuai filter aktif">⬇ Excel (filter aktif)</button>
+              <button class="btn bex" onclick="expRiw()" style="background:#0f766e" title="Download semua data">⬇ Excel (semua)</button>
             </div>
           </div>
 
-          <!-- Tabel -->
-          <div class="twrap tbl-card lzy">
+          <!-- ── Tabel ── -->
+          <div class="twrap tbl-card">
             <table class="tbl">
               <thead><tr>
-                <th>Tanggal</th><th>No.Reg</th><th>No. BPJS</th><th>No. KTP</th>
-                <th>Nama WBP</th><th>Umur</th><th>Diagnosa</th><th>Therapy / Obat</th><th>Aksi</th>
+                <th>Tanggal</th><th>No.Reg</th><th>No. BPJS</th><th>No. KTP</th><th>Nama WBP</th>
+                <th>Umur</th><th>Diagnosa</th><th>Therapy / Obat</th><th>Aksi</th>
               </tr></thead>
-              <tbody id="riwBd"><tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--li)">Pilih filter untuk menampilkan data</td></tr></tbody>
+              <tbody id="riwBd"><tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--li)">Belum dimuat — klik ↻</td></tr></tbody>
             </table>
           </div>
           <div class="pgwrap"><div class="pgbtns" id="riwPgs"></div></div>
@@ -594,14 +586,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       <!-- ══ PAGE: KELOLA ══════════════════════════════════════ -->
       <div class="page" id="page-adm">
         <div id="admGrid" style="display:grid;gap:1rem">
-
           <!-- Sheet Manager -->
-          <div class="card lzy" style="padding:1.25rem">
+          <div class="card lzy vs" style="padding:1.25rem">
             <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">📂 Kelola Sheet Tahun</h3>
             <div id="sheetList" style="margin-bottom:.85rem"></div>
             <div style="display:flex;gap:.5rem;margin-bottom:.85rem">
               <button class="btn bp" id="btnAktifkan" onclick="aktivasiSheet()" style="flex:1;font-size:.8rem" disabled>✅ Aktifkan Terpilih</button>
-              <button class="btn bd" id="btnHapus"    onclick="delSheet()"      style="flex:1;font-size:.8rem" disabled>🗑️ Hapus Terpilih</button>
+              <button class="btn bd" id="btnHapus" onclick="delSheet()" style="flex:1;font-size:.8rem" disabled>🗑️ Hapus Terpilih</button>
             </div>
             <div style="background:#f0fdfa;border-radius:11px;padding:.9rem">
               <div style="font-size:.69rem;font-weight:700;color:var(--li);margin-bottom:.45rem">BUAT SHEET BARU (Format: Data YYYY)</div>
@@ -611,34 +602,28 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
               </div>
             </div>
           </div>
-
-          <!-- Ganti Password -->
-          <div class="card lzy" style="padding:1.25rem">
-            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">🔑 Ganti Password</h3>
-            <div class="fw"><label class="fl">Password Lama</label><input type="password" id="pw2o" class="f"></div>
-            <div class="fw"><label class="fl">Password Baru</label><input type="password" id="pw2n" class="f"></div>
-            <div class="fw"><label class="fl">Konfirmasi</label><input type="password" id="pw2c" class="f"></div>
-            <button class="btn bp" onclick="doCP2()" style="width:100%">🔑 Simpan Password</button>
-            <p style="font-size:.71rem;color:var(--li);margin-top:.6rem">Untuk menambah/hapus user: edit langsung sheet <strong>"users"</strong> di Google Sheets (A=username, B=password).</p>
-          </div>
-
-          <!-- URL API -->
-          <div class="card lzy" style="padding:1.25rem">
-            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:.85rem;font-size:.92rem">🔗 Konfigurasi URL API</h3>
-            <div style="background:#f0fdfa;border-radius:11px;padding:.85rem;margin-bottom:.85rem;font-size:.78rem;color:#475569;line-height:1.7">
-              <p style="font-weight:700;color:var(--t3);margin-bottom:.35rem">📌 Cara ganti spreadsheet:</p>
-              <ol style="padding-left:1.1rem;display:flex;flex-direction:column;gap:.25rem">
-                <li>Deploy Apps Script baru → <em>Web App → Anyone</em> → copy URL</li>
-                <li>Paste URL di bawah → klik <strong>Simpan</strong></li>
-                <li>Tersimpan untuk akun <strong id="urlUserLabel" style="color:var(--t3)">—</strong> di semua device</li>
-              </ol>
+          <!-- User Manager -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">👤 Manajemen User</h3>
+            <div class="fw"><label class="fl">USERNAME BARU</label><input type="text" id="newUsr" class="f" placeholder="username"></div>
+            <div class="fw"><label class="fl">PASSWORD</label><input type="password" id="newPwd" class="f" placeholder="password"></div>
+            <button class="btn bp" onclick="addUser()" style="width:100%;margin-bottom:.875rem">+ Tambah User</button>
+            <div id="userList"></div>
+            <div style="border-top:1px solid var(--bd);margin-top:.875rem;padding-top:.875rem">
+              <div style="font-size:.69rem;font-weight:700;color:var(--li);margin-bottom:.5rem">GANTI PASSWORD SAYA</div>
+              <div class="fw"><label class="fl">Password Lama</label><input type="password" id="pw2o" class="f"></div>
+              <div class="fw"><label class="fl">Password Baru</label><input type="password" id="pw2n" class="f"></div>
+              <div class="fw"><label class="fl">Konfirmasi</label><input type="password" id="pw2c" class="f"></div>
+              <button class="btn bp" onclick="doCP2()" style="width:100%">🔑 Simpan Password</button>
             </div>
-            <div class="fw"><label class="fl">URL GOOGLE APPS SCRIPT WEB APP</label>
-              <input type="url" id="apiUrlInp" class="f" placeholder="https://script.google.com/macros/s/.../exec"></div>
-            <button class="btn bp" onclick="saveApiUrl()" style="width:100%">💾 Simpan URL (berlaku semua device)</button>
-            <p style="font-size:.71rem;color:var(--li);margin-top:.55rem">✅ URL tersimpan per-akun di kolom C sheet <strong>"users"</strong> — otomatis dimuat saat login dari device manapun.</p>
           </div>
-
+          <!-- API URL Config -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:.85rem;font-size:.92rem">🔗 Konfigurasi URL API</h3>
+            <div class="fw"><label class="fl">URL GOOGLE APPS SCRIPT WEB APP</label><input type="url" id="apiUrlInp" class="f" placeholder="https://script.google.com/macros/s/..."></div>
+            <button class="btn bp" onclick="saveApiUrl()" style="width:100%">💾 Simpan URL</button>
+            <p style="font-size:.72rem;color:var(--li);margin-top:.55rem">URL disimpan di browser (localStorage) <strong>dan</strong> di sheet "config" spreadsheet.</p>
+          </div>
         </div>
       </div>
 
