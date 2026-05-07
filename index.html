@@ -1,981 +1,732 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Lak3saLink — Lapas Kelas III Saparua</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Lak3sa Klinik — Lapas Kelas III Saparua</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* ===== RESET & BASE ===== */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ══════════════ ROOT ══════════════════════════════════════════ */
 :root{
-  --bg1:#06101f;--bg2:#0a1a34;--bg3:#0e2248;
-  --blue:#2979d4;--blue2:#1a4a9e;--bluel:#5ba3f5;--blueg:#7cbeff;--cyan:#38c8e8;
-  --w:#fff;--w9:rgba(255,255,255,.9);--w7:rgba(255,255,255,.7);
-  --w5:rgba(255,255,255,.5);--w3:rgba(255,255,255,.3);--w1:rgba(255,255,255,.1);
-  --w06:rgba(255,255,255,.06);--w04:rgba(255,255,255,.04);
-  --red:#f87171;--green:#4ade80;
-  --sb-w:230px;
+  --t2:#14b8a6;--t3:#0f766e;--t4:#0d9488;
+  --bg:#f0fdfa;--card:#fff;--txt:#134e4a;
+  --bd:rgba(20,184,166,.16);--sh:0 4px 20px rgba(15,118,110,.09);
+  --li:#94a3b8;--mu:#64748b;
 }
-html{height:100%}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg1);color:var(--w);min-height:100%;overflow-x:hidden;width:100%}
-h1,h2,h3,.fd{font-family:'Space Grotesk',sans-serif}
-a{text-decoration:none;color:inherit}
-img{display:block;max-width:100%}
-button{cursor:pointer;font-family:inherit}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:var(--w1);border-radius:4px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;-webkit-text-size-adjust:100%;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
 
-/* ===== BACKGROUND ===== */
-body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 0%,rgba(41,121,212,.5) 0%,transparent 55%),
-    radial-gradient(ellipse 60% 50% at 80% 100%,rgba(17,40,90,.7) 0%,transparent 55%),
-    linear-gradient(160deg,var(--bg1) 0%,var(--bg2) 40%,var(--bg3) 70%,var(--bg1) 100%);
-}
-body::after{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:linear-gradient(var(--w06) 1px,transparent 1px),linear-gradient(90deg,var(--w06) 1px,transparent 1px);
-  background-size:56px 56px;
-}
-#bg-floaters{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.bf{position:absolute;border-radius:50%;object-fit:cover;filter:blur(0px) saturate(.7) brightness(.55);animation:bfloat 18s ease-in-out infinite;}
-@keyframes bfloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-20px) rotate(4deg)}}
+/* ══════════════ SPLASH ════════════════════════════════════════ */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0f766e,#0d9488,#06b6d4);display:flex;align-items:center;justify-content:center;transition:opacity .75s ease;}
+#splash.out{opacity:0;pointer-events:none;}
+.sp-ring{width:120px;height:120px;border-radius:50%;border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;position:relative;}
+.sp-ring::before{content:'';position:absolute;inset:-2px;border-radius:50%;border:2.5px solid transparent;border-top-color:rgba(255,255,255,.9);border-right-color:rgba(255,255,255,.35);animation:spR 1.7s linear infinite;}
+.sp-ring::after{content:'';position:absolute;inset:9px;border-radius:50%;border:2px solid transparent;border-bottom-color:rgba(255,255,255,.55);border-left-color:rgba(255,255,255,.2);animation:spR 2.9s linear infinite reverse;}
+.sp-ic{width:82px;height:82px;border-radius:50%;background:rgba(255,255,255,.13);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:2.4rem;animation:spP 2s ease-in-out infinite;}
+@keyframes spR{to{transform:rotate(360deg);}}
+@keyframes spP{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.sp-bar{width:170px;height:3px;background:rgba(255,255,255,.2);border-radius:99px;margin:1.5rem auto 0;overflow:hidden;}
+.sp-bf{height:100%;background:#fff;border-radius:99px;animation:spF 2.3s ease-in-out forwards;}
+@keyframes spF{from{width:0}to{width:100%}}
+.sp-dots{display:flex;gap:7px;justify-content:center;margin-top:.875rem;}
+.sp-dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4);animation:spD 1.4s ease-in-out infinite;}
+.sp-dots span:nth-child(2){animation-delay:.2s;}.sp-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes spD{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.2)}}
 
-/* ===== LOADING ===== */
-#ls{position:fixed;inset:0;z-index:2000;background:var(--bg1);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-  transition:opacity .4s}
-#ls.out{opacity:0;pointer-events:none !important}
-.ll{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:2rem;
-  background:linear-gradient(135deg,#fff,var(--cyan));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.sp{width:20px;height:20px;border:2px solid var(--w1);border-top-color:var(--w);
-  border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ══════════════ SHARED FULL-PAGE ═════════════════════════════ */
+.fullpage{display:none;min-height:100vh;background:linear-gradient(135deg,#0f766e,#0d9488,#06b6d4);flex-direction:column;align-items:center;justify-content:center;padding:1rem;}
+.fp-box{width:100%;max-width:400px;}
+.fp-head{text-align:center;margin-bottom:1.6rem;}
+.fp-head .fp-ic{width:70px;height:70px;background:rgba(255,255,255,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;font-size:2rem;backdrop-filter:blur(8px);}
+.fp-head h1{font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;letter-spacing:1.2px;}
+.fp-head p{color:rgba(255,255,255,.6);font-size:.78rem;margin-top:.25rem;}
+.fp-card{background:rgba(255,255,255,.97);border-radius:22px;padding:1.75rem;box-shadow:0 20px 60px rgba(0,0,0,.18);}
+.fp-card h2{font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:1.2rem;font-size:1rem;}
+.fp-foot{text-align:center;color:rgba(255,255,255,.35);font-size:.68rem;margin-top:1.1rem;}
 
-/* ===== TOAST ===== */
-#toast{position:fixed;bottom:20px;right:16px;z-index:1500;
-  padding:11px 18px;border-radius:12px;font-family:'Space Grotesk',sans-serif;
-  font-weight:600;font-size:.85rem;pointer-events:none;
-  transform:translateY(60px);opacity:0;transition:all .3s;max-width:280px}
-#toast.show{transform:translateY(0);opacity:1}
-#toast.ok{background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.35);color:var(--green)}
-#toast.err{background:rgba(239,68,68,.18);border:1px solid rgba(239,68,68,.35);color:var(--red)}
-#ctoast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(20px);
-  z-index:1500;opacity:0;pointer-events:none;
-  background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:var(--green);
-  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.82rem;
-  padding:8px 20px;border-radius:99px;transition:all .25s;white-space:nowrap}
-#ctoast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ══════════════ FORM ELEMENTS ════════════════════════════════ */
+.f{width:100%;padding:.65rem .9rem;border:1.5px solid #ccfbf1;border-radius:11px;background:#f8fffe;font-family:inherit;font-size:.875rem;color:var(--txt);outline:none;transition:all .17s;appearance:none;}
+.f:focus{border-color:var(--t2);background:#fff;box-shadow:0 0 0 3px rgba(20,184,166,.12);}
+.f::placeholder{color:var(--li);}
+.f[readonly]{background:#e2e8f0;color:var(--mu);cursor:not-allowed;}
+.fl{font-size:.72rem;font-weight:700;color:var(--mu);display:block;margin-bottom:.26rem;letter-spacing:.25px;}
+.fw{margin-bottom:.6rem;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.62rem;}
+.s2{grid-column:1/-1;}
+@media(max-width:480px){.g2{grid-template-columns:1fr;}.s2{grid-column:1;}}
 
-/* ===== VIEWS ===== */
-.view{display:none;position:relative;z-index:1;min-height:100vh}
-.view.on{display:flex;flex-direction:column;position:relative;z-index:1}
+/* ══════════════ BUTTONS ══════════════════════════════════════ */
+.btn{cursor:pointer;border:none;border-radius:10px;font-family:inherit;font-size:.82rem;font-weight:600;transition:all .18s;padding:.55rem 1rem;}
+.bp{background:linear-gradient(135deg,var(--t3),var(--t2));color:#fff;font-family:'Sora',sans-serif;font-weight:700;letter-spacing:.4px;box-shadow:0 4px 14px rgba(13,148,136,.28);}
+.bp:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(13,148,136,.38);}
+.bp:active{transform:translateY(0);}
+.bp:disabled{opacity:.45;cursor:not-allowed;transform:none!important;box-shadow:none;}
+.bs{background:#f0fdfa;color:var(--t3);border:1.5px solid #99f6e4;}
+.bs:hover{background:#ccfbf1;}
+.bd{background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;}
+.bd:hover{background:#fee2e2;}
+.bl2{background:#dbeafe;color:#1d4ed8;border:1.5px solid #bfdbfe;}
+.bsm{padding:.27rem .62rem;border-radius:7px;font-size:.73rem;}
+.bex{background:#f0fdfa;color:var(--t3);border:1.5px solid #99f6e4;border-radius:9px;padding:.42rem .85rem;font-size:.76rem;}
+.bex:hover{background:#ccfbf1;}
+.sp2{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spR .7s linear infinite;display:inline-block;vertical-align:middle;}
 
-/* ===== GLASS / CARD ===== */
-.glass{background:rgba(10,20,50,.55);border:1px solid rgba(255,255,255,.12);border-radius:16px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.card{background:rgba(41,121,212,.1);border:1px solid rgba(91,163,245,.2);border-radius:14px;padding:18px}
+/* ══════════════ BADGES ═══════════════════════════════════════ */
+.badge{display:inline-block;padding:.18rem .6rem;border-radius:99px;font-size:.7rem;font-weight:700;}
+.bt{background:#ccfbf1;color:#0f766e;}
+.ba{background:#fef3c7;color:#d97706;}
+.bl2-b{background:#dbeafe;color:#1d4ed8;}
 
-/* ===== BADGE ===== */
-.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:99px;
-  font-size:.7rem;font-weight:700;font-family:'Space Grotesk',sans-serif;
-  letter-spacing:.07em;text-transform:uppercase;
-  background:rgba(41,121,212,.2);border:1px solid rgba(91,163,245,.4);color:var(--blueg)}
+/* ══════════════ APP SHELL ════════════════════════════════════ */
+#app{display:none;min-height:100vh;flex-direction:column;}
 
-/* ===== INPUTS ===== */
-.inp{width:100%;padding:10px 13px;background:var(--w04);border:1px solid var(--w1);
-  border-radius:10px;color:var(--w);font-family:'Plus Jakarta Sans',sans-serif;
-  font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s}
-.inp:focus{border-color:var(--bluel);box-shadow:0 0 0 3px rgba(91,163,245,.15)}
-.inp::placeholder{color:var(--w3)}
-.lbl{display:block;font-size:.7rem;font-weight:600;color:var(--w5);
-  margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase}
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:300;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);padding:0 1rem;height:54px;display:flex;align-items:center;justify-content:space-between;gap:.5rem;}
+.tbrand{display:flex;align-items:center;gap:.6rem;flex-shrink:0;}
+.tic{width:34px;height:34px;background:linear-gradient(135deg,var(--t3),var(--t2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.tname{font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.9rem;line-height:1.1;}
+.tsub{font-size:.6rem;color:var(--li);font-weight:500;}
+.tacts{display:flex;align-items:center;gap:.4rem;flex-shrink:0;}
+#topbarUser{background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:8px;padding:.28rem .7rem;font-size:.73rem;color:var(--t3);font-weight:700;max-width:105px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hmb{background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--t3);padding:.2rem;line-height:1;display:none;}
 
-/* ===== BUTTONS ===== */
-.btn{padding:10px 20px;border-radius:10px;font-family:'Space Grotesk',sans-serif;
-  font-weight:700;font-size:.88rem;border:none;transition:all .2s}
-.btn-blue{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;
-  box-shadow:0 4px 14px rgba(20,70,160,.35)}
-.btn-blue:hover{transform:translateY(-1px);box-shadow:0 7px 20px rgba(20,70,160,.5)}
-.btn-blue:disabled{opacity:.6;transform:none}
-.btn-red{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.28);color:var(--red)}
-.btn-red:hover{background:rgba(239,68,68,.22)}
-.btn-green{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.28);color:var(--green)}
-.btn-green:hover{background:rgba(34,197,94,.22)}
-.btn-cyan{background:rgba(56,200,232,.15);border:1px solid rgba(56,200,232,.38);color:var(--cyan)}
-.btn-cyan:hover{background:rgba(56,200,232,.25)}
-.btn-sm{padding:6px 11px;font-size:.78rem;border-radius:8px}
+/* LAYOUT */
+.abody{display:flex;flex:1;min-height:0;}
 
-/* ===== DIVIDER ===== */
-.dv{border:none;border-top:1px solid var(--w06);margin:16px 0}
+/* SIDEBAR */
+.sidebar{width:205px;flex-shrink:0;padding:.8rem .7rem;border-right:1px solid var(--bd);background:var(--card);position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;}
+.ni{display:flex;align-items:center;gap:.6rem;padding:.62rem .85rem;border-radius:11px;cursor:pointer;font-weight:600;font-size:.82rem;color:var(--mu);transition:all .17s;user-select:none;margin-bottom:2px;}
+.ni:hover{background:#f0fdfa;color:var(--t3);}
+.ni.on{background:linear-gradient(135deg,var(--t3),var(--t2));color:#fff;box-shadow:0 3px 10px rgba(13,148,136,.27);}
+.sdiv{height:1px;background:var(--bd);margin:.6rem 0;}
+.slbl{font-size:.64rem;font-weight:800;color:var(--li);letter-spacing:1px;padding:.2rem .85rem;}
+#sheetBadge{display:block;margin:.2rem .7rem .4rem;background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:7px;padding:.27rem .62rem;font-size:.76rem;font-weight:700;color:var(--t3);}
 
-/* ===== ANIM ===== */
-.fu{animation:fu .6s cubic-bezier(.4,0,.2,1) both}
-@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.d1{animation-delay:.06s}.d2{animation-delay:.13s}.d3{animation-delay:.2s}.d4{animation-delay:.27s}
+/* DRAWER */
+#drawerOv{display:none;position:fixed;inset:0;z-index:400;background:rgba(15,23,42,.5);backdrop-filter:blur(3px);}
+#drawerOv.on{display:block;}
+#drawer{position:fixed;left:0;top:0;bottom:0;z-index:401;width:232px;background:var(--card);transform:translateX(-100%);transition:transform .27s cubic-bezier(.4,0,.2,1);padding:.875rem .7rem;overflow-y:auto;box-shadow:4px 0 20px rgba(0,0,0,.1);}
+#drawer.on{transform:translateX(0);}
+.dhead{display:flex;align-items:center;gap:.6rem;padding:.4rem .2rem .9rem;border-bottom:1px solid var(--bd);margin-bottom:.7rem;}
 
-/* ===== AVATAR RING ===== */
-.aring{display:inline-block;border-radius:50%;padding:3px;
-  background:linear-gradient(135deg,var(--cyan),var(--bluel),rgba(255,255,255,.5));
-  box-shadow:0 0 30px rgba(56,200,232,.3)}
-.aring img{border-radius:50%;object-fit:cover;border:3px solid var(--bg1)}
+/* MAIN */
+.main{flex:1;min-width:0;padding:1.1rem 1rem;overflow-x:hidden;}
+@media(min-width:768px){.main{padding:1.25rem 1.5rem;}}
 
-/* ===== PUBLIC LINK BTN ===== */
-.lbtn{display:flex;align-items:center;gap:12px;width:100%;
-  padding:15px 18px;border-radius:17px;
-  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.18);
-  color:var(--w);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:.97rem;
-  transition:all .25s;position:relative;overflow:hidden;}
-.lbtn::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(91,163,245,.2),rgba(56,200,232,.12));
-  opacity:0;transition:opacity .25s}
-.lbtn:hover{transform:translateY(-2px);background:rgba(255,255,255,.17);
-  border-color:rgba(124,190,255,.55);box-shadow:0 10px 28px rgba(20,70,160,.38)}
-.lbtn:hover::after{opacity:1}
-.lic{width:40px;height:40px;border-radius:11px;flex-shrink:0;
-  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);
-  display:flex;align-items:center;justify-content:center;font-size:1rem}
+/* BOTTOM NAV — DIHAPUS: mobile pakai drawer sidebar */
 
-/* ===== MORE BTN & CTX MENU ===== */
-.lwrap{position:relative;width:100%}
-.mbtn{position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  width:34px;height:34px;border-radius:9px;
-  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--w7);font-size:.9rem;z-index:2;
-  transition:all .2s;-webkit-tap-highlight-color:transparent}
-.mbtn:hover,.mbtn:active{background:rgba(91,163,245,.3);color:var(--w)}
-.cmenu{position:fixed;background:#0c1930;
-  border:1px solid rgba(91,163,245,.38);border-radius:14px;padding:6px;
-  min-width:190px;box-shadow:0 20px 60px rgba(0,0,0,.85);
-  z-index:1200;opacity:0;pointer-events:none;
-  transform:scale(.95) translateY(-4px);transform-origin:top right;
-  transition:opacity .15s,transform .15s}
-.cmenu.on{opacity:1;pointer-events:auto;transform:scale(1) translateY(0)}
-.ci{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
-  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.84rem;
-  color:var(--w9);transition:background .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
-.ci:hover,.ci:active{background:rgba(41,121,212,.25);color:var(--w)}
-.ci i{width:16px;text-align:center;color:var(--bluel);font-size:.82rem;flex-shrink:0}
-.cdv{border:none;border-top:1px solid var(--w06);margin:4px 6px}
+/* RESPONSIVE */
+@media(max-width:767px){.sidebar{display:none;}.hmb{display:flex;}#topbarUser{max-width:90px;}.main{padding:.7rem .8rem 1.2rem;}}
 
-/* ===== PUBLIC PAGE ===== */
-#public-view{
-  background:
-    radial-gradient(ellipse 100% 70% at 50% 0%,rgba(41,121,212,.4) 0%,transparent 60%),
-    radial-gradient(ellipse 80% 60% at 15% 5%,rgba(56,200,232,.18) 0%,transparent 55%),
-    linear-gradient(160deg,#0d2248 0%,#112a5c 40%,#0e2040 70%,#08152e 100%);
+/* ══════════════ PAGE ═════════════════════════════════════════ */
+.page{display:none;}.page.on{display:block;animation:fU .3s ease;}
+@keyframes fU{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════ CARD ═════════════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);}
+@media(min-width:768px){.card{border-radius:18px;}}
+
+/* ══════════════ LAZY ═════════════════════════════════════════ */
+.lzy{opacity:0;transform:translateY(10px);transition:opacity .38s ease,transform .38s ease;}
+.lzy.vs{opacity:1;transform:translateY(0);}
+
+/* ══════════════ STAT CARDS ═══════════════════════════════════ */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.1rem;}
+@media(max-width:480px){.sgrid{grid-template-columns:1fr 1fr;}}
+.sc{border-radius:14px;padding:1rem;color:#fff;position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;right:-16px;top:-16px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.1);}
+.snum{font-size:1.7rem;font-weight:800;line-height:1.1;margin-top:.12rem;}
+@media(max-width:480px){.sc:last-child{grid-column:1/-1;}.snum{font-size:1.5rem;}}
+
+/* ══════════════ TABLE ════════════════════════════════════════ */
+.twrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem;min-width:550px;}
+.tbl th{background:#f0fdfa;color:var(--t3);font-weight:700;padding:.65rem .9rem;text-align:left;border-bottom:2px solid #ccfbf1;white-space:nowrap;position:sticky;top:0;z-index:1;}
+.tbl td{padding:.65rem .9rem;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#f8fffd;}
+.sk{background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%);background-size:200% 100%;animation:skA 1.4s ease-in-out infinite;border-radius:6px;}
+@keyframes skA{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.el{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* Card-table on mobile */
+@media(max-width:600px){
+  .tbl-card .tbl{min-width:unset;}
+  .tbl-card .tbl thead{display:none;}
+  .tbl-card .tbl tr{display:block;background:#fff;border:1px solid var(--bd);border-radius:11px;margin-bottom:.55rem;padding:.6rem;}
+  .tbl-card .tbl td{display:flex;justify-content:space-between;align-items:flex-start;padding:.28rem 0;border:none;font-size:.79rem;gap:.4rem;flex-wrap:wrap;}
+  .tbl-card .tbl td::before{content:attr(data-label);font-weight:700;color:var(--mu);font-size:.68rem;white-space:nowrap;flex-shrink:0;}
+  .tbl-card .tbl tr:hover td{background:transparent;}
+  .el{max-width:150px;}
 }
 
-/* ===== ADMIN LAYOUT ===== */
-#admin-view{flex-direction:row !important}
+/* ══════════════ PAGINATION ═══════════════════════════════════ */
+.pgwrap{display:flex;align-items:center;justify-content:space-between;padding:.8rem .2rem 0;flex-wrap:wrap;gap:.45rem;}
+.pginf{font-size:.75rem;color:var(--mu);}
+.pgbtns{display:flex;gap:.28rem;flex-wrap:wrap;}
+.pgb{padding:.3rem .62rem;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid #ccfbf1;background:#fff;color:var(--t3);transition:all .13s;}
+.pgb:hover{background:#ccfbf1;}
+.pgb.on{background:var(--t2);color:#fff;border-color:var(--t2);}
+.pgb:disabled{opacity:.35;cursor:not-allowed;}
 
-/* Sidebar */
-.sb{
-  width:var(--sb-w);flex-shrink:0;
-  background:rgba(2,6,18,.98);
-  border-right:1px solid var(--w06);
-  display:flex;flex-direction:column;
-  /* TIDAK ada position/height di sini — dikontrol penuh oleh media query */
-  overflow-y:auto;overflow-x:hidden;
-}
-.ni{display:flex;align-items:center;gap:10px;
-  padding:10px 13px;border-radius:10px;margin:2px 0;
-  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.84rem;
-  color:var(--w5);transition:all .2s;border-left:2px solid transparent}
-.ni:hover,.ni.on{background:rgba(41,121,212,.18);color:var(--w)}
-.ni.on{color:var(--blueg);border-left-color:var(--blueg);padding-left:11px}
-.ni i{width:18px;text-align:center;font-size:.88rem}
+/* ══════════════ HISTORY CARD ════════════════════════════════ */
+.hc{padding:.8rem;border-radius:11px;border-left:3px solid var(--t2);background:#fff;box-shadow:0 2px 7px rgba(15,118,110,.06);margin-bottom:.6rem;transition:transform .13s;}
+.hc:hover{transform:translateX(2px);}
 
-/* Admin main */
-.am{flex:1;min-width:0;display:flex;flex-direction:column}
-.ah{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
-  padding:0 18px;background:rgba(3,10,25,.9);border-bottom:1px solid var(--w06);position:sticky;top:0;z-index:10}
-.ac{flex:1;overflow-y:auto;overflow-x:hidden;padding:18px}
+/* ══════════════ DRUG TAGS ═══════════════════════════════════ */
+.dtgs{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.12rem;}
+.dtg{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:5px;padding:.15rem .5rem;font-size:.73rem;font-weight:600;}
 
-/* Panels */
-.pan{display:none}.pan.on{display:block}
+/* ══════════════ INFO BOX ════════════════════════════════════ */
+.ibx{background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:12px;padding:.9rem;margin-bottom:.9rem;}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:.38rem .65rem;font-size:.79rem;}
+@media(min-width:480px){.igrid{grid-template-columns:repeat(3,1fr);}}
+.ii span{font-size:.66rem;font-weight:700;color:var(--li);display:block;margin-bottom:.08rem;text-transform:uppercase;letter-spacing:.25px;}
+.ii strong{font-size:.8rem;}
 
-/* Link item admin */
-.lia{display:flex;align-items:center;gap:0;padding:11px 13px;background:var(--w04);border:1px solid var(--w06);border-radius:12px;transition:background .2s;min-width:0}
-.lia:hover{background:var(--w1)}
+/* ══════════════ MODAL ════════════════════════════════════════ */
+.mo{position:fixed;inset:0;z-index:8888;background:rgba(15,23,42,.58);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
+.mo.op{opacity:1;pointer-events:all;}
+@media(min-width:560px){.mo{align-items:center;padding:1rem;}}
+.mb{background:#fff;border-radius:20px 20px 0 0;padding:1.4rem;width:100%;max-height:90vh;overflow-y:auto;transform:translateY(36px);transition:transform .28s cubic-bezier(.34,1.56,.64,1);}
+@media(min-width:560px){.mb{border-radius:20px;max-width:580px;transform:scale(.92);}}
+.mo.op .mb{transform:translateY(0);}
+@media(min-width:560px){.mo.op .mb{transform:scale(1);}}
+.mt{font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1.1rem;font-size:.95rem;}
+.mft{display:flex;gap:.6rem;margin-top:1.1rem;}
 
-/* Floater item */
-.fi{display:flex;align-items:center;gap:11px;padding:10px 13px;
-  background:var(--w04);border:1px solid var(--w06);border-radius:12px;margin-bottom:8px}
-.fth{width:44px;height:44px;border-radius:8px;object-fit:cover;
-  flex-shrink:0;border:1px solid var(--w1);background:var(--w04)}
+/* Detail rows */
+.ir{display:flex;align-items:baseline;padding:.38rem 0;border-bottom:1px solid #f1f5f9;gap:.5rem;flex-wrap:wrap;}
+.ir:last-child{border-bottom:none;}
+.ik{font-size:.7rem;font-weight:700;color:var(--li);min-width:110px;flex-shrink:0;}
+.iv{font-size:.8rem;font-weight:500;color:var(--txt);}
 
-/* ===== MODAL ===== */
-.modal{display:none;position:fixed;inset:0;z-index:900;
-  align-items:center;justify-content:center;background:rgba(0,0,0,.75)}
-.modal.on{display:flex}
+/* ══════════════ TOAST ════════════════════════════════════════ */
+#toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(36px);z-index:9998;padding:.8rem 1.3rem;border-radius:12px;font-weight:600;font-size:.82rem;opacity:0;transition:all .32s cubic-bezier(.34,1.56,.64,1);max-width:calc(100vw - 2rem);width:max-content;text-align:center;pointer-events:none;}
+@media(min-width:768px){#toast{left:auto;right:1.5rem;bottom:1.75rem;transform:translateY(36px);}}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media(min-width:768px){#toast.show{transform:translateY(0);}}
+#toast.ok{background:#0d9488;color:#fff;box-shadow:0 6px 18px rgba(13,148,136,.38);}
+#toast.er{background:#e11d48;color:#fff;box-shadow:0 6px 18px rgba(225,29,72,.38);}
+#toast.in{background:#0891b2;color:#fff;}
 
-/* ===== SIDEBAR OVERLAY (mobile only) ===== */
-/* PENTING: sb-ov dikendalikan 100% via JS (style.display).
-   Tidak ada CSS class yang mengontrol visibility-nya.
-   Ini menghindari semua konflik CSS yang sudah terjadi. */
-#sb-ov{
-  display:none; /* JS yang mengubah ini */
-  position:fixed;inset:0;
-  z-index:799;
-  background:rgba(0,0,0,.65);
-  cursor:pointer;
-}
+/* ══════════════ SHEET LIST ══════════════════════════════════ */
+.sheet-item{display:flex;align-items:center;justify-content:space-between;padding:.6rem .85rem;border-radius:10px;border:1.5px solid var(--bd);margin-bottom:.4rem;transition:all .15s;background:var(--card);}
+.sheet-item:hover{border-color:var(--t2);background:#f0fdfa;}
+.sheet-item.aktif{border-color:#16a34a;background:#f0fdf4;}
+.sheet-item.selected{border-color:var(--t2);background:#f0fdfa;}
 
-/* ===== RESPONSIVE ===== */
-@media(min-width:769px){
-  #hbtn,#closesb{display:none !important}
-  #admin-view{height:100vh;overflow:hidden}
-  .sb{
-    position:sticky !important;
-    top:0 !important;
-    height:100vh !important;
-  }
-  .am{height:100vh;overflow:hidden}
-  .ac{overflow-y:auto;overflow-x:hidden}
-}
+/* ══════════════ SEC TITLE ═══════════════════════════════════ */
+.stl{font-size:.67rem;font-weight:800;color:var(--li);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.7rem;padding-bottom:.32rem;border-bottom:1px dashed #e2e8f0;}
 
-@media(max-width:768px){
-  /* Admin: column layout */
-  #admin-view{flex-direction:column !important}
+/* ══════════════ EMPTY ═══════════════════════════════════════ */
+.emp{text-align:center;padding:1.5rem 1rem;color:var(--li);}
+.ei{font-size:2rem;margin-bottom:.55rem;}
 
-  /* Sidebar: SEMBUNYIKAN sepenuhnya di mobile */
-  .sb{display:none !important}
-  #sb-ov{display:none !important}
-  #hbtn,#closesb{display:none !important}
+/* ══════════════ FOOTER ══════════════════════════════════════ */
+.footer{background:linear-gradient(135deg,var(--t3),var(--t2));color:#fff;padding:1rem 1.5rem;}
+.fin{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+/* ══════════════ FILTER MODE BUTTONS ═════════════════════════ */
+.fmb{padding:.32rem .72rem;border:none;border-radius:8px;background:transparent;font-family:inherit;font-size:.72rem;font-weight:700;color:var(--mu);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.fmb.on{background:#0d9488;color:#fff;box-shadow:0 2px 8px rgba(13,148,136,.25);}
+.fmb:hover:not(.on){background:rgba(13,148,136,.1);color:var(--t3);}
 
-  /* Admin main: full width, tambah padding bawah untuk bottom nav */
-  .am{height:auto !important;min-height:100vh}
-  .ac{padding:14px !important;padding-bottom:80px !important;box-sizing:border-box;width:100%}
+@media(max-width:767px){.fmb{padding:.28rem .52rem;font-size:.68rem;}#riwFilterBar{padding:.65rem .75rem;}}
 
-  /* Grid panels */
-  .pgrid{grid-template-columns:1fr !important}
-  #srow{grid-template-columns:1fr !important}
+/* ══════════════ CRUD SPLASH ══════════════════════════════════ */
+#crudSplash{position:fixed;inset:0;z-index:9990;background:rgba(15,23,42,.62);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s;}
+#crudSplash.on{opacity:1;pointer-events:all;}
+.crud-box{background:#fff;border-radius:20px;padding:2rem 2.5rem;display:flex;flex-direction:column;align-items:center;gap:1rem;box-shadow:0 20px 60px rgba(0,0,0,.22);min-width:200px;}
+.crud-ring{width:52px;height:52px;border-radius:50%;border:3px solid #ccfbf1;border-top-color:var(--t2);border-right-color:var(--t3);animation:spR .85s linear infinite;}
+#crudSplashMsg{font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);font-size:.9rem;text-align:center;}
 
-  /* Bottom nav tampil */
-  }
-
-
-/* ══ BOTTOM NAVIGATION (mobile admin) ══ */
-#bottom-nav{
-  display:none;
-  position:fixed;
-  bottom:0;left:0;right:0;
-  height:64px;
-  background:rgba(3,8,20,.97);
-  border-top:1px solid rgba(255,255,255,.1);
-  z-index:500;
-  align-items:center;
-  justify-content:space-around;
-  padding:0 8px;
-}
-.bn-item{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;padding:8px 14px;border-radius:12px;
-  font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.65rem;
-  color:var(--w5);cursor:pointer;transition:all .2s;
-  border:none;background:none;
-  -webkit-tap-highlight-color:transparent;
-  min-width:56px;
-}
-.bn-item i{font-size:1.1rem;display:block}
-.bn-item.on{color:var(--blueg);background:rgba(41,121,212,.15);border-radius:12px}
-.bn-item:active{background:rgba(255,255,255,.08)}
-
-
-/* ── LINK THUMBNAIL PREVIEW ── */
-.ctx-thumb{
-  width:100%;height:120px;object-fit:cover;border-radius:10px;
-  margin-bottom:4px;display:none;
-  border:1px solid rgba(255,255,255,.1);
-}
-.ctx-thumb.loaded{display:block}
-.ctx-thumb-wrap{padding:4px 4px 0;margin-bottom:2px}
-
-/* ── CURSOR FIX ── */
-*, *::before, *::after { cursor: default }
-a, button, [onclick], .lbtn, .mbtn, .bn-item, .ni, .ci, .btn { cursor: pointer !important }
-input, textarea, select { cursor: text }
-
-
+/* ══════════════ SCROLLBAR ═══════════════════════════════════ */
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#5eead4;border-radius:99px;}
 </style>
 </head>
 <body>
 
-<div id="bg-floaters"></div>
+<!-- SPLASH -->
+<div id="splash">
+  <div style="text-align:center">
+    <div class="sp-ring"><div class="sp-ic">🏥</div></div>
+    <div style="font-family:'Sora',sans-serif;font-size:1.7rem;font-weight:800;color:#fff;margin-top:1.5rem;letter-spacing:2.5px">LAK3SA KLINIK</div>
+    <div style="color:rgba(255,255,255,.65);font-size:.8rem;margin-top:.35rem">Lapas Kelas III Saparua</div>
+    <div class="sp-bar"><div class="sp-bf"></div></div>
+    <div class="sp-dots"><span></span><span></span><span></span></div>
+  </div>
+</div>
 
-<div id="ls">
-  <div class="ll">Lak3saLink</div>
-  <div class="sp"></div>
-  <p style="font-size:.78rem;color:var(--w3);">Lapas Kelas III Saparua</p>
+<!-- ══ SETUP PAGE (pertama kali) ══════════════════════════════ -->
+<div id="setupPage" class="fullpage">
+  <div class="fp-box">
+    <div class="fp-head">
+      <div class="fp-ic">🔗</div>
+      <h1>LAK3SA KLINIK</h1>
+      <p>Setup pertama kali — masukkan URL API</p>
+    </div>
+    <div class="fp-card">
+      <h2>Konfigurasi URL API</h2>
+      <div class="fw">
+        <label class="fl">URL GOOGLE APPS SCRIPT WEB APP</label>
+        <input type="url" id="setupUrl" class="f" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      <div style="background:#f0fdfa;border-radius:10px;padding:.75rem;margin-bottom:1rem;font-size:.78rem;color:#475569;line-height:1.6">
+        📋 URL ini didapat setelah Deploy Web App di Google Apps Script.<br>
+        Format: <code style="background:#e2e8f0;padding:.1rem .3rem;border-radius:4px;font-size:.72rem">https://script.google.com/macros/s/.../exec</code>
+      </div>
+      <button class="btn bp" style="width:100%" id="setupBtn" onclick="submitSetup()">Simpan & Lanjutkan →</button>
+    </div>
+    <div class="fp-foot">© 2026 Lak3sa Klinik — Lapas Kelas III Saparua</div>
+  </div>
+</div>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════ -->
+<div id="loginPage" class="fullpage">
+  <div class="fp-box">
+    <div class="fp-head">
+      <div class="fp-ic">🏥</div>
+      <h1>LAK3SA KLINIK</h1>
+      <p>Lapas Kelas III Saparua · 2026</p>
+    </div>
+    <div class="fp-card">
+      <h2>Selamat Datang 👋</h2>
+      <div class="fw">
+        <label class="fl">USERNAME</label>
+        <input type="text" id="login_u" class="f" placeholder="Masukkan username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="fw">
+        <label class="fl">PASSWORD</label>
+        <input type="password" id="login_p" class="f" placeholder="Masukkan password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="loginErr" style="display:none;background:#fef2f2;color:#dc2626;padding:.6rem .9rem;border-radius:9px;font-size:.78rem;font-weight:600;margin-bottom:.85rem">❌ Username atau password salah!</div>
+      <button class="btn bp" style="width:100%" onclick="doLogin()" id="loginBtn">MASUK</button>
+    </div>
+    <div class="fp-foot">© 2026 Lak3sa Klinik — Lapas Kelas III Saparua</div>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tbrand">
+      <button class="hmb" onclick="openDrawer()">☰</button>
+      <div class="tic">🏥</div>
+      <div><div class="tname">LAK3SA KLINIK</div><div class="tsub">Lapas Kelas III Saparua</div></div>
+    </div>
+    <div class="tacts">
+      <div id="topbarUser"></div>
+      <button class="btn bs" onclick="showMod('modPw')" style="font-size:.75rem;padding:.32rem .7rem">🔑</button>
+      <button class="btn bd" onclick="doLogout()" style="font-size:.75rem;padding:.32rem .7rem">Keluar</button>
+    </div>
+  </header>
+
+  <!-- DRAWER -->
+  <div id="drawerOv" onclick="closeDrawer()"></div>
+  <div id="drawer">
+    <div class="dhead">
+      <div class="tic">🏥</div>
+      <div><div class="tname" style="font-size:.85rem">LAK3SA KLINIK</div><div class="tsub">Lapas Kelas III Saparua</div></div>
+    </div>
+    <div class="ni on" id="d-nav-pem" onclick="showPage('pem')"><span>🩺</span> Pemeriksaan</div>
+    <div class="ni" id="d-nav-wbp" onclick="showPage('wbp')"><span>👥</span> Data WBP</div>
+    <div class="ni" id="d-nav-riw" onclick="showPage('riw')"><span>📋</span> Riwayat</div>
+    <div class="ni" id="d-nav-adm" onclick="showPage('adm')"><span>⚙️</span> Kelola</div>
+    <div class="sdiv"></div>
+    <div class="slbl">SHEET AKTIF</div>
+    <span id="sheetBadgeD" style="display:block;margin:.2rem .5rem .4rem;background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:7px;padding:.27rem .62rem;font-size:.76rem;font-weight:700;color:var(--t3)">—</span>
+    <div class="sdiv"></div>
+    <div class="ni" onclick="showMod('modPw');closeDrawer()"><span>🔑</span> Ganti Password</div>
+    <div class="ni" style="color:#dc2626" onclick="doLogout()"><span>🚪</span> Keluar</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="abody">
+    <!-- SIDEBAR DESKTOP -->
+    <aside class="sidebar">
+      <div class="ni on" id="nav-pem" onclick="showPage('pem')"><span>🩺</span> Pemeriksaan</div>
+      <div class="ni" id="nav-wbp" onclick="showPage('wbp')"><span>👥</span> Data WBP</div>
+      <div class="ni" id="nav-riw" onclick="showPage('riw')"><span>📋</span> Riwayat</div>
+      <div class="ni" id="nav-adm" onclick="showPage('adm')"><span>⚙️</span> Kelola</div>
+      <div class="sdiv"></div>
+      <div class="slbl">SHEET AKTIF</div>
+      <span id="sheetBadge">—</span>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- ══ PAGE: PEMERIKSAAN ══════════════════════════════ -->
+      <div class="page on" id="page-pem">
+        <!-- Stats -->
+        <div class="sgrid">
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,var(--t3),var(--t2))">
+            <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">TOTAL KUNJUNGAN</div>
+            <div class="snum" id="sTotal">—</div>
+            <div style="font-size:.63rem;opacity:.7;margin-top:.12rem" id="sSheet">—</div>
+          </div>
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">
+            <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">HARI INI</div>
+            <div class="snum" id="sToday">—</div>
+          </div>
+          <div class="sc lzy vs" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">
+            <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">TOTAL WBP</div>
+            <div class="snum" id="sWbp">—</div>
+          </div>
+        </div>
+
+        <div id="pemGrid" style="display:grid;gap:1rem">
+          <!-- LEFT -->
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <!-- Search box -->
+            <div class="card lzy vs" style="padding:1.2rem">
+              <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.85rem;font-size:.9rem">🔍 Cari WBP Terdaftar</h3>
+              <div style="position:relative">
+                <input type="text" id="srchInp" class="f" placeholder="Nama / No.Reg / No.KTP / No.BPJS..." style="padding-right:4.2rem" onkeydown="if(event.key==='Enter')doSearch()">
+                <button onclick="doSearch()" style="position:absolute;right:.38rem;top:50%;transform:translateY(-50%);background:var(--t2);color:#fff;border:none;padding:.37rem .75rem;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer">CARI</button>
+              </div>
+              <!-- WBP Found -->
+              <div id="wbpFound" style="display:none;margin-top:.8rem;background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:11px;padding:.85rem">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.35rem">
+                  <span class="badge bt">WBP Ditemukan ✓</span>
+                  <button onclick="clearSrch()" style="background:none;border:none;color:var(--li);cursor:pointer;font-size:.8rem;line-height:1">✕</button>
+                </div>
+                <div id="wbpFoundInfo" style="font-size:.81rem;color:#334155;line-height:1.6"></div>
+              </div>
+              <!-- Not Found -->
+              <div id="wbpNF" style="display:none;margin-top:.8rem;background:#fef2f2;border:1px solid #fecaca;border-radius:11px;padding:.8rem;text-align:center;font-size:.79rem;color:#dc2626">
+                ❌ WBP tidak ditemukan.<br>
+                <button onclick="showPage('wbp')" style="margin-top:.45rem;background:#dc2626;color:#fff;border:none;padding:.32rem .85rem;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer">+ Daftar WBP Baru</button>
+              </div>
+            </div>
+            <!-- Riwayat kunjungan pasien -->
+            <div class="card lzy vs" style="padding:1.2rem;flex:1">
+              <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.8rem;font-size:.9rem">📋 Riwayat Kunjungan</h3>
+              <div id="histList" style="max-height:380px;overflow-y:auto;padding-right:2px">
+                <div class="emp"><div class="ei">🔍</div><p style="font-size:.77rem">Cari WBP untuk melihat riwayat</p></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Form Pemeriksaan -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.35rem">
+              <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📝 Form Pemeriksaan</h3>
+              <div id="formMode" class="badge ba">Pilih WBP dulu</div>
+            </div>
+            <!-- Identitas WBP (readonly, dari search) -->
+            <div id="wbpIB" style="display:none" class="ibx">
+              <div class="stl">Identitas WBP (dari database)</div>
+              <div class="igrid">
+                <div class="ii"><span>No. Register</span><strong id="iReg">—</strong></div>
+                <div class="ii"><span>Nama</span><strong id="iNama">—</strong></div>
+                <div class="ii"><span>Tgl. Lahir</span><strong id="iTgl">—</strong></div>
+                <div class="ii"><span>Umur</span><strong id="iUmur">—</strong></div>
+                <div class="ii"><span>Jenis Kelamin</span><strong id="iJK">—</strong></div>
+                <div class="ii"><span>No. KTP</span><strong id="iKTP" style="font-size:.72rem">—</strong></div>
+                <div class="ii"><span>No. BPJS</span><strong id="iBPJS">—</strong></div>
+                <div class="ii"><span>Alergi Obat</span><strong id="iAlergi" style="color:#dc2626">—</strong></div>
+                <div class="ii"><span>Riwayat Penyakit</span><strong id="iRiw">—</strong></div>
+              </div>
+            </div>
+            <div id="wbpIE" style="background:#fef3c7;border:1px solid #fde68a;border-radius:11px;padding:.8rem;margin-bottom:.9rem;font-size:.79rem;color:#92400e;text-align:center">
+              ⚠️ Cari dan pilih WBP terlebih dahulu
+            </div>
+            <!-- Hidden: No.Reg & Nama WBP untuk dikirim ke server -->
+            <input type="hidden" id="fReg"><input type="hidden" id="fNama">
+
+            <div class="stl">Data Pemeriksaan</div>
+            <div class="g2">
+              <div class="fw s2"><label class="fl">Tanggal *</label><input type="date" id="fTgl" class="f"></div>
+              <div class="fw s2"><label class="fl">Keluhan Utama</label><textarea id="fKeluhan" class="f" rows="2" placeholder="Deskripsikan keluhan pasien..."></textarea></div>
+              <!-- Tekanan Darah: 2 field angka (sistol & diastol) -->
+              <div class="fw">
+                <label class="fl">Sistol (mmHg)</label>
+                <input type="number" id="fTDs" class="f" placeholder="120" min="0" max="300">
+              </div>
+              <div class="fw">
+                <label class="fl">Diastol (mmHg)</label>
+                <input type="number" id="fTDd" class="f" placeholder="80" min="0" max="200">
+              </div>
+              <div class="fw"><label class="fl">Suhu Tubuh (°C)</label><input type="number" id="fSuhu" class="f" placeholder="36.5" step="0.1" min="30" max="45"></div>
+              <div class="fw"><label class="fl">Berat Badan (kg)</label><input type="number" id="fBB" class="f" placeholder="60" step="0.5" min="0"></div>
+              <div class="fw s2"><label class="fl">Diagnosa</label><textarea id="fDiagnosa" class="f" rows="2" placeholder="Diagnosa dokter..."></textarea></div>
+              <div class="fw s2">
+                <label class="fl">Therapy / Obat <span style="color:var(--li);font-weight:400">(pisahkan dengan koma)</span></label>
+                <textarea id="fTherapy" class="f" rows="2" placeholder="Paracetamol 500mg 3x1, Amoxicillin 500mg 3x1..." style="background:#f0fdfa;border-color:#99f6e4"></textarea>
+              </div>
+              <div class="fw s2"><label class="fl">Keterangan Tambahan</label><input type="text" id="fKet" class="f" placeholder="Catatan tambahan..."></div>
+              <div class="fw"><label class="fl">Update Alergi Obat</label><input type="text" id="fAlergiUpd" class="f" placeholder="Kosong = tidak diubah"></div>
+              <div class="fw"><label class="fl">Update Riwayat Penyakit</label><input type="text" id="fRiwUpd" class="f" placeholder="Kosong = tidak diubah"></div>
+            </div>
+            <button class="btn bp" style="width:100%;margin-top:.4rem" onclick="doSave()" id="saveBtn" disabled>💾 SIMPAN PEMERIKSAAN</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: DATA WBP ════════════════════════════════════ -->
+      <div class="page" id="page-wbp">
+        <div id="wbpTopGrid" style="display:grid;gap:1rem;margin-bottom:1rem">
+          <!-- Form tambah/edit WBP -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;flex-wrap:wrap;gap:.35rem">
+              <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.9rem" id="wbpFT">👤 Tambah WBP Baru</h3>
+              <button class="btn bs" onclick="resetWbpForm()" style="font-size:.75rem;padding:.32rem .7rem">+ Reset</button>
+            </div>
+            <input type="hidden" id="wbpEI">
+            <div class="g2">
+              <div class="fw"><label class="fl">No. Register * (unik)</label><input type="text" id="wReg" class="f" placeholder="REG-001"></div>
+              <div class="fw"><label class="fl">No. KTP * (unik)</label><input type="text" id="wKTP" class="f" placeholder="16 digit NIK" maxlength="16"></div>
+              <div class="fw s2"><label class="fl">Nama Lengkap *</label><input type="text" id="wNama" class="f" placeholder="Nama sesuai identitas"></div>
+              <div class="fw"><label class="fl">Tanggal Lahir *</label><input type="date" id="wTgl" class="f" oninput="autoAge('wTgl','wUmur')"></div>
+              <div class="fw"><label class="fl">Umur (otomatis)</label><input type="text" id="wUmur" class="f" readonly placeholder="—"></div>
+              <div class="fw"><label class="fl">Jenis Kelamin</label><select id="wJK" class="f"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+              <div class="fw"><label class="fl">No. BPJS (unik jika diisi)</label><input type="text" id="wBPJS" class="f" placeholder="Opsional"></div>
+              <div class="fw s2"><label class="fl">Alergi Obat</label><input type="text" id="wAlergi" class="f" placeholder="Mis: Penisilin, Sulfa..."></div>
+              <div class="fw s2"><label class="fl">Riwayat Penyakit</label><input type="text" id="wRiw" class="f" placeholder="Mis: Hipertensi, Diabetes..."></div>
+            </div>
+            <button class="btn bp" style="width:100%" onclick="saveWbp()" id="wbpSaveBtn">💾 Simpan Data WBP</button>
+          </div>
+          <!-- Info panel -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:700;color:var(--t3);margin-bottom:.85rem;font-size:.9rem">ℹ️ Petunjuk</h3>
+            <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.81rem;color:#475569;line-height:1.65">
+              <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">📌 Halaman ini</strong> untuk mendaftarkan identitas WBP. Isi sekali, digunakan selamanya.</div>
+              <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">🎂 Umur otomatis</strong> dihitung dari tanggal lahir.</div>
+              <div style="background:#f0fdfa;border-radius:9px;padding:.75rem"><strong style="color:var(--t3)">🔒 No.Reg, No.KTP, No.BPJS</strong> bersifat unik — tidak bisa duplikat.</div>
+              <div style="background:#fef3c7;border-radius:9px;padding:.75rem"><strong style="color:#d97706">⚠️ Alergi Obat & Riwayat Penyakit</strong> disimpan di kolom terpisah (G & H) di spreadsheet.</div>
+            </div>
+          </div>
+        </div>
+        <!-- Tabel WBP -->
+        <div class="card lzy vs" style="padding:1.25rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.6rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📋 Daftar WBP Terdaftar</h3>
+            <div style="display:flex;gap:.45rem;align-items:center;flex-wrap:wrap">
+              <input type="text" id="wbpSrch" class="f" placeholder="Cari..." style="width:160px" oninput="wbpSF()">
+              <button class="btn bex" onclick="expWbp()">⬇ Excel</button>
+              <button class="btn bp" onclick="pgLoaded['wbp']=false;inv('wbp');loadWbp()" style="padding:.42rem .85rem;font-size:.78rem">↻</button>
+            </div>
+          </div>
+          <div class="twrap tbl-card">
+            <table class="tbl">
+              <thead><tr>
+                <th>#</th><th>No.Reg</th><th>Nama</th><th>Tgl Lahir</th><th>Umur</th><th>JK</th>
+                <th>No. KTP</th><th>No. BPJS</th><th>Alergi Obat</th><th>Riwayat Penyakit</th><th>Aksi</th>
+              </tr></thead>
+              <tbody id="wbpBd"><tr><td colspan="11" style="padding:2rem;text-align:center;color:var(--li)">Belum dimuat — klik ↻</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pgwrap"><span class="pginf" id="wbpInf"></span><div class="pgbtns" id="wbpPgs"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: RIWAYAT ═════════════════════════════════════ -->
+      <div class="page" id="page-riw">
+        <div class="card lzy vs" style="padding:1.25rem">
+
+          <!-- ── Header + Kontrol ── -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.6rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);font-size:.92rem">📋 Riwayat Kunjungan</h3>
+            <div style="display:flex;gap:.45rem;align-items:center;flex-wrap:wrap">
+              <button class="btn bp" onclick="pgLoaded['riw']=false;inv('visits');loadVisits()" style="padding:.42rem .85rem;font-size:.78rem" title="Refresh">↻</button>
+            </div>
+          </div>
+
+          <!-- ── Filter Bar ── -->
+          <div id="riwFilterBar" style="background:#f0fdfa;border-radius:14px;padding:.85rem 1rem;margin-bottom:.85rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:flex-end">
+            <!-- Filter Mode -->
+            <div style="display:flex;gap:.3rem;background:#e2faf7;border-radius:10px;padding:.2rem">
+              <button id="fmBtnHari"   class="fmb on" onclick="setFilterMode('hari')"   >Hari ini</button>
+              <button id="fmBtnKemarin" class="fmb"   onclick="setFilterMode('kemarin')">Kemarin</button>
+              <button id="fmBtnMinggu" class="fmb"    onclick="setFilterMode('minggu')" >7 Hari</button>
+              <button id="fmBtnBulan"  class="fmb"    onclick="setFilterMode('bulan')"  >Bulan ini</button>
+              <button id="fmBtnRange"  class="fmb"    onclick="setFilterMode('range')"  >Rentang</button>
+              <button id="fmBtnSemua"  class="fmb"    onclick="setFilterMode('semua')"  >Semua</button>
+            </div>
+            <!-- Rentang Tanggal (tampil hanya saat mode range) -->
+            <div id="rangeInputs" style="display:none;align-items:center;gap:.4rem;flex-wrap:wrap">
+              <input type="date" id="riwTglDari" class="f" style="width:140px;font-size:.8rem" onchange="applyDateFilter()">
+              <span style="color:var(--mu);font-size:.8rem">s/d</span>
+              <input type="date" id="riwTglSmpai" class="f" style="width:140px;font-size:.8rem" onchange="applyDateFilter()">
+            </div>
+            <!-- Label tanggal aktif -->
+            <span id="riwFilterLabel" style="font-size:.75rem;font-weight:700;color:var(--t3);background:#ccfbf1;padding:.28rem .7rem;border-radius:99px;white-space:nowrap"></span>
+            <!-- Pencarian nama -->
+            <input type="text" id="riwSrch" class="f" placeholder="🔍 Cari nama / diagnosa..." style="width:175px;font-size:.82rem;margin-left:auto" oninput="riwSF()">
+          </div>
+
+          <!-- ── Info + Aksi ── -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.45rem">
+            <span class="pginf" id="riwInf"></span>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+              <button class="btn bex" onclick="expRiwFilter()" title="Download Excel sesuai filter aktif">⬇ Excel (filter aktif)</button>
+              <button class="btn bex" onclick="expRiw()" style="background:#0f766e" title="Download semua data">⬇ Excel (semua)</button>
+            </div>
+          </div>
+
+          <!-- ── Tabel ── -->
+          <div class="twrap tbl-card">
+            <table class="tbl">
+              <thead><tr>
+                <th>Tanggal</th><th>No.Reg</th><th>No. BPJS</th><th>No. KTP</th><th>Nama WBP</th>
+                <th>Umur</th><th>Diagnosa</th><th>Therapy / Obat</th><th>Aksi</th>
+              </tr></thead>
+              <tbody id="riwBd"><tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--li)">Belum dimuat — klik ↻</td></tr></tbody>
+            </table>
+          </div>
+          <div class="pgwrap"><div class="pgbtns" id="riwPgs"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: KELOLA ══════════════════════════════════════ -->
+      <div class="page" id="page-adm">
+        <div id="admGrid" style="display:grid;gap:1rem">
+          <!-- Sheet Manager -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">📂 Kelola Sheet Tahun</h3>
+            <div id="sheetList" style="margin-bottom:.85rem"></div>
+            <div style="display:flex;gap:.5rem;margin-bottom:.85rem">
+              <button class="btn bp" id="btnAktifkan" onclick="aktivasiSheet()" style="flex:1;font-size:.8rem" disabled>✅ Aktifkan Terpilih</button>
+              <button class="btn bd" id="btnHapus" onclick="delSheet()" style="flex:1;font-size:.8rem" disabled>🗑️ Hapus Terpilih</button>
+            </div>
+            <div style="background:#f0fdfa;border-radius:11px;padding:.9rem">
+              <div style="font-size:.69rem;font-weight:700;color:var(--li);margin-bottom:.45rem">BUAT SHEET BARU (Format: Data YYYY)</div>
+              <div style="display:flex;gap:.45rem">
+                <input type="text" id="newYear" class="f" placeholder="2027" maxlength="4" style="flex:1">
+                <button class="btn bp" onclick="addSheet()" style="padding:.6rem .875rem;font-size:.8rem;white-space:nowrap">+ Buat</button>
+              </div>
+            </div>
+          </div>
+          <!-- User Manager -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">👤 Manajemen User</h3>
+            <div class="fw"><label class="fl">USERNAME BARU</label><input type="text" id="newUsr" class="f" placeholder="username"></div>
+            <div class="fw"><label class="fl">PASSWORD</label><input type="password" id="newPwd" class="f" placeholder="password"></div>
+            <button class="btn bp" onclick="addUser()" style="width:100%;margin-bottom:.875rem">+ Tambah User</button>
+            <div id="userList"></div>
+            <div style="border-top:1px solid var(--bd);margin-top:.875rem;padding-top:.875rem">
+              <div style="font-size:.69rem;font-weight:700;color:var(--li);margin-bottom:.5rem">GANTI PASSWORD SAYA</div>
+              <div class="fw"><label class="fl">Password Lama</label><input type="password" id="pw2o" class="f"></div>
+              <div class="fw"><label class="fl">Password Baru</label><input type="password" id="pw2n" class="f"></div>
+              <div class="fw"><label class="fl">Konfirmasi</label><input type="password" id="pw2c" class="f"></div>
+              <button class="btn bp" onclick="doCP2()" style="width:100%">🔑 Simpan Password</button>
+            </div>
+          </div>
+          <!-- API URL Config -->
+          <div class="card lzy vs" style="padding:1.25rem">
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:.85rem;font-size:.92rem">🔗 Konfigurasi URL API</h3>
+            <div class="fw"><label class="fl">URL GOOGLE APPS SCRIPT WEB APP</label><input type="url" id="apiUrlInp" class="f" placeholder="https://script.google.com/macros/s/..."></div>
+            <button class="btn bp" onclick="saveApiUrl()" style="width:100%">💾 Simpan URL</button>
+            <p style="font-size:.72rem;color:var(--li);margin-top:.55rem">URL disimpan di browser (localStorage) <strong>dan</strong> di sheet "config" spreadsheet.</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="fin">
+      <div style="display:flex;align-items:center;gap:.65rem">
+        <span style="font-size:1.2rem">🏥</span>
+        <div>
+          <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:.88rem;letter-spacing:.5px">LAK3SA KLINIK</div>
+          <div style="font-size:.68rem;opacity:.75">Lapas Kelas III Saparua</div>
+        </div>
+      </div>
+      <div style="font-size:.7rem;opacity:.55;text-align:right">Sistem Informasi Kesehatan Terintegrasi<br>© 2026 Lapas Kelas III Saparua</div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ══ MODAL: Ganti Password (topbar) ════════════════════════ -->
+<div class="mo" id="modPw">
+  <div class="mb" style="max-width:440px">
+    <div class="mt">🔑 Ganti Password</div>
+    <div class="fw"><label class="fl">PASSWORD LAMA</label><input type="password" id="pwo" class="f"></div>
+    <div class="fw"><label class="fl">PASSWORD BARU</label><input type="password" id="pwn" class="f"></div>
+    <div class="fw"><label class="fl">KONFIRMASI PASSWORD BARU</label><input type="password" id="pwc" class="f"></div>
+    <div class="mft">
+      <button class="btn bs" style="flex:1" onclick="closeMod('modPw')">Batal</button>
+      <button class="btn bp" style="flex:1" onclick="doCP()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Edit WBP ═══════════════════════════════════════ -->
+<div class="mo" id="modEW">
+  <div class="mb">
+    <div class="mt">✏️ Edit Data WBP</div>
+    <input type="hidden" id="ewIdx">
+    <div class="g2">
+      <div class="fw"><label class="fl">No. Register (unik)</label><input type="text" id="ewReg" class="f"></div>
+      <div class="fw"><label class="fl">No. KTP (unik)</label><input type="text" id="ewKTP" class="f"></div>
+      <div class="fw s2"><label class="fl">Nama Lengkap</label><input type="text" id="ewNama" class="f"></div>
+      <div class="fw"><label class="fl">Tanggal Lahir</label><input type="date" id="ewTgl" class="f" oninput="autoAge('ewTgl','ewUmur')"></div>
+      <div class="fw"><label class="fl">Umur (otomatis)</label><input type="text" id="ewUmur" class="f" readonly></div>
+      <div class="fw"><label class="fl">Jenis Kelamin</label><select id="ewJK" class="f"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+      <div class="fw"><label class="fl">No. BPJS (unik jika diisi)</label><input type="text" id="ewBPJS" class="f"></div>
+      <div class="fw s2"><label class="fl">Alergi Obat</label><input type="text" id="ewAlergi" class="f"></div>
+      <div class="fw s2"><label class="fl">Riwayat Penyakit</label><input type="text" id="ewRiw" class="f"></div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" style="flex:1" onclick="closeMod('modEW')">Batal</button>
+      <button class="btn bp" style="flex:1" onclick="updWbpMod()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Detail Kunjungan ══════════════════════════════ -->
+<div class="mo" id="modDV">
+  <div class="mb">
+    <div class="mt">👁 Detail Kunjungan</div>
+    <div id="dvBody"></div>
+    <div class="mft">
+      <button class="btn bp" style="flex:1" onclick="closeMod('modDV')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: Edit Kunjungan ════════════════════════════════ -->
+<div class="mo" id="modEV">
+  <div class="mb">
+    <div class="mt">✏️ Edit Data Kunjungan</div>
+    <input type="hidden" id="evIdx">
+    <div class="g2">
+      <div class="fw"><label class="fl">Tanggal</label><input type="date" id="evTgl" class="f"></div>
+      <div class="fw"><label class="fl">No. Reg WBP</label><input type="text" id="evReg" class="f" readonly></div>
+      <div class="fw s2"><label class="fl">Keluhan</label><textarea id="evKel" class="f" rows="2"></textarea></div>
+      <div class="fw"><label class="fl">Sistol (mmHg)</label><input type="number" id="evTDs" class="f" placeholder="120"></div>
+      <div class="fw"><label class="fl">Diastol (mmHg)</label><input type="number" id="evTDd" class="f" placeholder="80"></div>
+      <div class="fw"><label class="fl">Suhu (°C)</label><input type="number" id="evSuhu" class="f" step="0.1"></div>
+      <div class="fw"><label class="fl">Berat Badan (kg)</label><input type="number" id="evBB" class="f" step="0.5"></div>
+      <div class="fw s2"><label class="fl">Diagnosa</label><textarea id="evDiag" class="f" rows="2"></textarea></div>
+      <div class="fw s2"><label class="fl">Therapy / Obat <span style="color:var(--li);font-weight:400">(pisah koma)</span></label><textarea id="evTher" class="f" rows="2"></textarea></div>
+      <div class="fw s2"><label class="fl">Keterangan</label><input type="text" id="evKet" class="f"></div>
+    </div>
+    <div class="mft">
+      <button class="btn bs" style="flex:1" onclick="closeMod('modEV')">Batal</button>
+      <button class="btn bp" style="flex:1" onclick="updVisit()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- CRUD SPLASH -->
+<div id="crudSplash">
+  <div class="crud-box">
+    <div class="crud-ring"></div>
+    <div id="crudSplashMsg">Memproses...</div>
+  </div>
 </div>
 
 <div id="toast"></div>
-<div id="ctoast"></div>
-
-<!-- Overlay sidebar mobile — dikendalikan JS -->
-<div id="sb-ov" onclick="sbClose()"></div>
-
-<!-- ════════ PUBLIC ════════ -->
-<div id="public-view" class="view">
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:52px 20px">
-    <div style="width:100%;max-width:430px">
-
-      <div class="fu" style="text-align:center;margin-bottom:32px">
-        <div class="aring" style="display:inline-block;margin-bottom:16px">
-          <img id="pub-av" src="" alt="" style="width:110px;height:110px"
-            onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 110 110%22><rect width=%22110%22 height=%22110%22 rx=%2255%22 fill=%22%230a1a30%22/><text x=%2255%22 y=%2274%22 text-anchor=%22middle%22 font-size=%2252%22>🏛️</text></svg>'"/>
-        </div>
-        <h1 id="pub-name" class="fd" style="font-size:1.85rem;font-weight:800;margin-bottom:6px;
-          background:linear-gradient(135deg,#fff,rgba(160,215,255,.92));
-          -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">—</h1>
-        <p id="pub-tag" style="font-size:.93rem;color:var(--w7)">—</p>
-      </div>
-
-      <div id="pub-links" class="fu d2" style="display:flex;flex-direction:column;gap:12px">
-        <div style="text-align:center;padding:24px;color:var(--w5)">
-          <div class="sp" style="margin:0 auto 10px"></div>
-          <p style="font-size:.83rem">Memuat tautan...</p>
-        </div>
-      </div>
-
-      <div class="fu d4" style="text-align:center;margin-top:38px">
-        <span class="badge"><i class="fas fa-link" style="font-size:.6rem"></i> Lak3saLink</span>
-        <p style="margin-top:10px;font-size:.68rem;color:var(--w3)">
-          <a href="#admin">Admin</a>
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════ LOGIN ════════ -->
-<div id="login-view" class="view">
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px">
-    <div style="width:100%;max-width:390px" class="fu">
-      <div style="text-align:center;margin-bottom:26px">
-        <span class="badge" style="margin-bottom:13px"><i class="fas fa-link" style="font-size:.6rem"></i> Lak3saLink</span>
-        <h1 class="fd" style="font-size:1.9rem;font-weight:800;margin-bottom:7px">Masuk Admin</h1>
-        <p style="color:var(--w5);font-size:.88rem">Lapas Kelas III Saparua</p>
-      </div>
-      <div class="glass" style="padding:28px;display:flex;flex-direction:column;gap:16px">
-        <div>
-          <label class="lbl">Password</label>
-          <div style="position:relative">
-            <input type="password" id="l-pwd" class="inp" placeholder="Masukkan password" style="padding-right:42px"/>
-            <button onclick="tpwd('l-pwd',this)" style="position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--w5);font-size:.85rem;padding:4px"><i class="fas fa-eye"></i></button>
-          </div>
-        </div>
-        <p id="l-err" style="color:var(--red);font-size:.8rem;display:none"></p>
-        <button id="l-btn" class="btn btn-blue" onclick="doLogin()" style="width:100%">Masuk</button>
-        <div style="text-align:center"><a href="#reset" style="font-size:.8rem;color:var(--blueg)">Lupa / Ganti password?</a></div>
-      </div>
-      <p style="text-align:center;margin-top:16px;font-size:.83rem;color:var(--w5)">
-        <a onclick="nav('public-view')" href="#" style="color:inherit"><i class="fas fa-arrow-left" style="font-size:.72rem;margin-right:4px"></i>Kembali ke halaman utama</a>
-      </p>
-    </div>
-  </div>
-</div>
-
-<!-- ════════ RESET ════════ -->
-<div id="reset-view" class="view">
-  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px">
-    <div style="width:100%;max-width:390px" class="fu">
-      <div style="text-align:center;margin-bottom:22px">
-        <div style="width:52px;height:52px;border-radius:50%;background:rgba(41,121,212,.18);border:1px solid rgba(91,163,245,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 13px"><i class="fas fa-key" style="color:var(--bluel);font-size:1.1rem"></i></div>
-        <h1 class="fd" style="font-size:1.6rem;font-weight:800;margin-bottom:5px">Ganti Password</h1>
-        <p style="color:var(--w5);font-size:.86rem">Tersimpan di spreadsheet, berlaku di semua perangkat</p>
-      </div>
-      <div class="glass" style="padding:24px;display:flex;flex-direction:column;gap:14px">
-        <div><label class="lbl">Password Lama</label><input type="password" id="r-old" class="inp" placeholder="Password saat ini"/></div>
-        <div><label class="lbl">Password Baru</label><input type="password" id="r-new" class="inp" placeholder="Min. 8 karakter"/></div>
-        <div><label class="lbl">Konfirmasi</label><input type="password" id="r-con" class="inp" placeholder="Ulangi password baru"/></div>
-        <p id="r-msg" style="font-size:.8rem;display:none"></p>
-        <button class="btn btn-blue" onclick="doReset()" style="width:100%"><span id="r-btxt">Simpan Password Baru</span></button>
-        <div style="text-align:center"><a href="#login" style="font-size:.8rem;color:var(--w5)"><i class="fas fa-arrow-left" style="margin-right:3px"></i>Kembali ke Login</a></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════ ADMIN ════════ -->
-<div id="admin-view" class="view">
-
-  <!-- SIDEBAR -->
-  <aside class="sb" id="sb">
-    <div style="padding:14px 13px;border-bottom:1px solid var(--w06);flex-shrink:0">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <span class="badge"><i class="fas fa-link" style="font-size:.6rem"></i> Lak3saLink</span>
-        <button id="closesb" onclick="sbClose()" style="display:none;background:var(--w06);border:1px solid var(--w1);border-radius:7px;width:30px;height:30px;align-items:center;justify-content:center;color:var(--w5);font-size:.84rem"><i class="fas fa-times"></i></button>
-      </div>
-      <p style="margin-top:6px;font-size:.72rem;color:var(--w3)">Admin</p>
-    </div>
-    <nav style="flex:1;padding:10px 9px;display:flex;flex-direction:column;gap:1px">
-      <a class="ni on" onclick="swPanel('p-links',this)"><i class="fas fa-link"></i> Tautan</a>
-      <a class="ni" onclick="swPanel('p-profile',this)"><i class="fas fa-user-circle"></i> Profil</a>
-      <a class="ni" onclick="swPanel('p-floaters',this)"><i class="fas fa-images"></i> Gambar BG</a>
-      <a class="ni" onclick="swPanel('p-preview',this)"><i class="fas fa-eye"></i> Preview</a>
-      <hr class="dv"/>
-      <a class="ni" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Keluar</a>
-      <a class="ni" href="#" onclick="nav('public-view')"><i class="fas fa-external-link-alt"></i> Lihat Halaman</a>
-    </nav>
-    <div style="padding:10px 14px;border-top:1px solid var(--w04);font-size:.62rem;color:var(--w3);text-align:center;flex-shrink:0">Google Sheets Backend</div>
-  </aside>
-
-  <!-- MAIN -->
-  <div class="am">
-    <!-- Header -->
-    <div class="ah">
-      <div style="display:flex;align-items:center;gap:10px">
-        <button id="hbtn" onclick="sbToggle()" style="display:none;background:var(--w06);border:1px solid var(--w1);border-radius:8px;width:34px;height:34px;align-items:center;justify-content:center;color:var(--w5);font-size:.98rem"><i class="fas fa-bars"></i></button>
-        <h2 id="ptitle" class="fd" style="font-size:1.05rem;font-weight:700">Kelola Tautan</h2>
-      </div>
-      <button onclick="doLogout()" class="btn btn-red btn-sm"><i class="fas fa-sign-out-alt" style="margin-right:3px"></i>Keluar</button>
-    </div>
-
-    <!-- Content -->
-    <div class="ac">
-
-      <!-- PANEL: LINKS -->
-      <div id="p-links" class="pan on" style="max-width:960px;margin:0 auto;width:100%">
-        <div id="srow" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">
-          <div class="card"><p style="font-size:.68rem;font-weight:700;color:var(--w5);text-transform:uppercase;letter-spacing:.06em;font-family:'Space Grotesk',sans-serif">Total Tautan</p><p id="s-tot" class="fd" style="font-size:2.1rem;font-weight:800;margin-top:2px">—</p></div>
-          <div class="card"><p style="font-size:.68rem;font-weight:700;color:var(--w5);text-transform:uppercase;letter-spacing:.06em;font-family:'Space Grotesk',sans-serif">Profil</p><p id="s-name" class="fd" style="font-size:.92rem;font-weight:700;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</p></div>
-          <div class="card"><p style="font-size:.68rem;font-weight:700;color:var(--w5);text-transform:uppercase;letter-spacing:.06em;font-family:'Space Grotesk',sans-serif">Status</p><p class="fd" style="font-size:.88rem;font-weight:700;margin-top:4px;color:var(--green)"><i class="fas fa-circle" style="font-size:.56rem;margin-right:4px"></i>Aktif</p></div>
-        </div>
-        <div class="pgrid" style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;min-width:0">
-          <!-- Form tambah -->
-          <div class="glass" style="padding:20px">
-            <h3 class="fd" style="font-size:.88rem;font-weight:700;margin-bottom:15px"><i class="fas fa-plus-circle" style="color:var(--bluel);margin-right:6px"></i>Tambah Tautan</h3>
-            <div style="display:flex;flex-direction:column;gap:11px">
-              <div><label class="lbl">Judul</label><input type="text" id="lnk-t" class="inp" placeholder="cth: Website Kami"/></div>
-              <div><label class="lbl">Icon (Font Awesome)</label><input type="text" id="lnk-i" class="inp" placeholder="fas fa-globe"/><p style="font-size:.69rem;margin-top:3px;color:var(--w3)">Lihat <a href="https://fontawesome.com/icons" target="_blank" style="color:var(--bluel)">fontawesome.com</a></p></div>
-              <div><label class="lbl">URL</label><input type="url" id="lnk-u" class="inp" placeholder="https://..."/></div>
-              <div><label class="lbl">Urutan</label><input type="number" id="lnk-o" class="inp" placeholder="1,2,3..." min="1"/></div>
-              <button class="btn btn-blue" onclick="addLink()" style="width:100%"><span id="al-t">Tambah Tautan</span></button>
-            </div>
-          </div>
-          <!-- List -->
-          <div class="glass" style="padding:20px;overflow:hidden">
-            <h3 class="fd" style="font-size:.88rem;font-weight:700;margin-bottom:14px"><i class="fas fa-list" style="color:var(--bluel);margin-right:6px"></i>Daftar Tautan</h3>
-            <div style="overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch">
-            <div id="llist" style="display:flex;flex-direction:column;gap:9px;min-width:400px">
-              <div style="text-align:center;padding:18px;color:var(--w5)"><div class="sp" style="margin:0 auto 8px"></div><p style="font-size:.82rem">Memuat...</p></div>
-            </div><!-- /scroll-wrap -->
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL: PROFILE -->
-      <div id="p-profile" class="pan" style="max-width:540px;margin:0 auto">
-        <div class="glass" style="padding:24px">
-          <h3 class="fd" style="font-size:.9rem;font-weight:700;margin-bottom:18px"><i class="fas fa-user-edit" style="color:var(--bluel);margin-right:7px"></i>Pengaturan Profil</h3>
-          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(41,121,212,.1);border:1px solid rgba(91,163,245,.2);border-radius:12px;margin-bottom:18px">
-            <img id="av-prev" src="" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:1px solid var(--w1);background:var(--w04);flex-shrink:0" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 50%22><rect width=%2250%22 height=%2250%22 rx=%2225%22 fill=%22%230a1a30%22/><text x=%2225%22 y=%2233%22 text-anchor=%22middle%22 font-size=%2222%22>👤</text></svg>'"/>
-            <div><p id="n-prev" class="fd" style="font-weight:700;font-size:.92rem">Nama</p><p id="t-prev" style="font-size:.75rem;color:var(--w5)">Tagline</p></div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:14px">
-            <div><label class="lbl">Nama Tampilan</label><input type="text" id="adm-n" class="inp" placeholder="Nama" oninput="document.getElementById('n-prev').textContent=this.value||'Nama'"/></div>
-            <div><label class="lbl">Bio / Tagline</label><input type="text" id="adm-t" class="inp" placeholder="Deskripsi" oninput="document.getElementById('t-prev').textContent=this.value||'Tagline'"/></div>
-            <div><label class="lbl">URL Foto Profil</label><input type="url" id="adm-av" class="inp" placeholder="https://..." oninput="document.getElementById('av-prev').src=this.value"/></div>
-            <hr class="dv"/>
-            <div><label class="lbl">Warna Tombol (Gradient)</label>
-              <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
-                <input type="color" id="adm-c1" value="#2979d4" style="width:38px;height:32px;padding:2px;background:transparent;border:1px solid var(--w1);border-radius:7px;cursor:pointer"/>
-                <input type="color" id="adm-c2" value="#1a4a9e" style="width:38px;height:32px;padding:2px;background:transparent;border:1px solid var(--w1);border-radius:7px;cursor:pointer"/>
-                <span style="font-size:.74rem;color:var(--w5)">Warna 1 → Warna 2</span>
-              </div>
-            </div>
-            <button class="btn btn-blue" onclick="saveProfile()" style="width:100%"><span id="sp-t">Simpan Profil</span></button>
-          </div>
-        </div>
-        <div class="glass" style="padding:24px;margin-top:14px">
-          <h3 class="fd" style="font-size:.9rem;font-weight:700;margin-bottom:6px"><i class="fas fa-shield-alt" style="color:var(--cyan);margin-right:7px"></i>Ganti Password Admin</h3>
-          <p style="font-size:.77rem;color:var(--w5);margin-bottom:16px">Tersimpan di spreadsheet, berlaku di semua perangkat.</p>
-          <div style="display:flex;flex-direction:column;gap:12px">
-            <div><label class="lbl">Password Lama</label><input type="password" id="s-old" class="inp" placeholder="Password saat ini"/></div>
-            <div><label class="lbl">Password Baru</label><input type="password" id="s-new" class="inp" placeholder="Min. 8 karakter"/></div>
-            <div><label class="lbl">Konfirmasi</label><input type="password" id="s-con" class="inp" placeholder="Ulangi"/></div>
-            <button class="btn btn-cyan" onclick="changePwd()" style="width:100%"><span id="cp-t">Ubah Password</span></button>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL: FLOATERS -->
-      <div id="p-floaters" class="pan" style="max-width:640px;margin:0 auto">
-        <div class="glass" style="padding:22px">
-          <h3 class="fd" style="font-size:.9rem;font-weight:700;margin-bottom:5px">
-            <i class="fas fa-images" style="color:var(--bluel);margin-right:7px"></i>Gambar Melayang (Background)
-          </h3>
-          <p style="font-size:.78rem;color:var(--w5);margin-bottom:16px">
-            Masukkan URL gambar — preview langsung tampil di bawah.
-          </p>
-
-          <div style="padding:16px;background:var(--w04);border:1px solid var(--w06);border-radius:12px;margin-bottom:16px">
-            <p class="fd" style="font-size:.78rem;font-weight:700;color:var(--blueg);margin-bottom:12px">+ Tambah Gambar</p>
-
-            <!-- URL Input + Live Preview -->
-            <div><label class="lbl">URL Gambar</label>
-              <input type="url" id="f-url" class="inp" placeholder="https://i.imgur.com/..." oninput="fprev(this.value)"/>
-            </div>
-
-            <!-- Preview Box -->
-            <div id="f-prev-box" style="display:none;margin-top:12px;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;gap:12px">
-              <img id="f-prev" src="" alt="preview" style="width:64px;height:64px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,.15);flex-shrink:0"
-                onload="this.parentElement.style.display='flex';document.getElementById('f-prev-ok').style.display='block';document.getElementById('f-prev-err').style.display='none'"
-                onerror="document.getElementById('f-prev-ok').style.display='none';document.getElementById('f-prev-err').style.display='block'"/>
-              <div style="flex:1;min-width:0">
-                <p id="f-prev-ok" style="display:none;font-size:.8rem;color:var(--green);font-family:'Space Grotesk',sans-serif;font-weight:600">✓ Gambar terdeteksi</p>
-                <p id="f-prev-err" style="display:none;font-size:.8rem;color:var(--red);font-family:'Space Grotesk',sans-serif;font-weight:600">✗ URL tidak valid / gambar tidak ditemukan</p>
-                <p id="f-prev-url" style="font-size:.7rem;color:var(--w5);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></p>
-              </div>
-            </div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px">
-              <div><label class="lbl">Ukuran (px)</label><input type="number" id="f-sz" class="inp" value="120" min="60" max="350"/></div>
-              <div><label class="lbl">Kiri (%)</label><input type="number" id="f-l" class="inp" placeholder="10" min="0" max="90"/></div>
-              <div><label class="lbl">Atas (%)</label><input type="number" id="f-t" class="inp" placeholder="20" min="0" max="90"/></div>
-            </div>
-
-            <button class="btn btn-blue" onclick="addFlt()" style="width:100%;margin-top:12px">
-              <span id="af-t">Tambah Gambar</span>
-            </button>
-          </div>
-
-          <div id="flt-list"><div style="text-align:center;padding:16px;color:var(--w5)"><div class="sp" style="margin:0 auto 8px"></div><p style="font-size:.82rem">Memuat...</p></div></div>
-        </div>
-      </div>
-
-      <!-- PANEL: PREVIEW -->
-      <div id="p-preview" class="pan" style="max-width:380px;margin:0 auto">
-        <p style="font-size:.81rem;color:var(--w5);margin-bottom:11px">Preview tampilan halaman publik:</p>
-        <div class="glass" style="padding:24px;text-align:center">
-          <div class="aring" style="display:inline-block;margin-bottom:12px">
-            <img id="pv-av" src="" style="width:76px;height:76px" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 76 76%22><rect width=%2276%22 height=%2276%22 rx=%2238%22 fill=%22%230a1a30%22/><text x=%2238%22 y=%2250%22 text-anchor=%22middle%22 font-size=%2234%22>👤</text></svg>'"/>
-          </div>
-          <h2 id="pv-n" class="fd" style="font-size:1.15rem;font-weight:800;margin-bottom:3px">—</h2>
-          <p id="pv-t" style="font-size:.79rem;color:var(--w5);margin-bottom:16px">—</p>
-          <div id="pv-links" style="display:flex;flex-direction:column;gap:7px;text-align:left"></div>
-        </div>
-      </div>
-
-    </div><!-- /ac -->
-  </div><!-- /am -->
-</div><!-- /admin-view -->
-
-
-<!-- ══ BOTTOM NAV (mobile) ══ -->
-<div id="bottom-nav">
-  <button class="bn-item on" onclick="bnSwitch('p-links',this)" id="bn-links">
-    <i class="fas fa-link"></i>
-    <span>Tautan</span>
-  </button>
-  <button class="bn-item" onclick="bnSwitch('p-profile',this)" id="bn-profile">
-    <i class="fas fa-user-circle"></i>
-    <span>Profil</span>
-  </button>
-  <button class="bn-item" onclick="bnSwitch('p-floaters',this)" id="bn-floaters">
-    <i class="fas fa-images"></i>
-    <span>BG</span>
-  </button>
-  <button class="bn-item" onclick="bnSwitch('p-preview',this)" id="bn-preview">
-    <i class="fas fa-eye"></i>
-    <span>Preview</span>
-  </button>
-  <button class="bn-item" onclick="doLogout()" id="bn-logout">
-    <i class="fas fa-sign-out-alt"></i>
-    <span>Keluar</span>
-  </button>
-</div>
-<!-- EDIT MODAL -->
-<div id="edit-modal" class="modal" onclick="if(event.target===this)closeEM()">
-  <div class="glass" style="border-radius:18px;padding:24px;width:100%;max-width:390px;margin:16px">
-    <h3 class="fd" style="font-size:.95rem;font-weight:700;margin-bottom:17px">Edit Tautan</h3>
-    <input type="hidden" id="e-idx"/>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div><label class="lbl">Judul</label><input type="text" id="e-t" class="inp"/></div>
-      <div><label class="lbl">Icon</label><input type="text" id="e-i" class="inp" placeholder="fas fa-globe"/></div>
-      <div><label class="lbl">URL</label><input type="url" id="e-u" class="inp"/></div>
-      <div><label class="lbl">Urutan</label><input type="number" id="e-o" class="inp" min="1"/></div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
-        <button onclick="closeEM()" class="btn btn-red btn-sm">Batal</button>
-        <button onclick="saveEdit()" class="btn btn-blue btn-sm">Simpan</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-const AS_URL='https://script.google.com/macros/s/AKfycbzPjDm07Abzafm5QZqjjD9f8O_e65JO5Min-iPO_uaNIm-A6L-Dx3IFj2QU_yeo5VFvtw/exec';
-let ST={links:[],floaters:[],profile:{}};
-
-// ── API ──
-async function api(action,p={}){
-  const r=await fetch(AS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...p}),redirect:'follow'});
-  const d=await r.json();
-  if(!d.ok)throw new Error(d.error||'Error');
-  return d;
-}
-
-// ── AUTH ──
-const tok=()=>sessionStorage.getItem('ls_t')||'';
-const setTok=(t)=>t?sessionStorage.setItem('ls_t',t):sessionStorage.removeItem('ls_t');
-const isIn=()=>!!tok();
-
-async function doLogin(){
-  const pwd=document.getElementById('l-pwd').value.trim();
-  const err=document.getElementById('l-err');
-  const btn=document.getElementById('l-btn');
-  if(!pwd){err.textContent='Masukkan password.';err.style.display='block';return;}
-  err.style.display='none';
-  btn.innerHTML='<div class="sp" style="display:inline-block;vertical-align:middle"></div>';
-  btn.disabled=true;
-  try{const r=await api('login',{password:pwd});setTok(r.token);btn.innerHTML='Masuk';btn.disabled=false;window.location.hash='#admin';}
-  catch(e){btn.innerHTML='Masuk';btn.disabled=false;err.textContent='Password salah.';err.style.display='block';}
-}
-document.getElementById('l-pwd').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-
-function doLogout(){setTok('');window.location.hash='#login';}
-
-async function doReset(){
-  const o=document.getElementById('r-old').value.trim(),n=document.getElementById('r-new').value.trim(),c=document.getElementById('r-con').value.trim();
-  const msg=document.getElementById('r-msg'),btn=document.getElementById('r-btxt');
-  msg.style.display='none';
-  if(!o||!n||!c){msg.style.color='var(--red)';msg.textContent='Semua field wajib diisi.';msg.style.display='block';return;}
-  if(n.length<8){msg.style.color='var(--red)';msg.textContent='Min. 8 karakter.';msg.style.display='block';return;}
-  if(n!==c){msg.style.color='var(--red)';msg.textContent='Password tidak cocok.';msg.style.display='block';return;}
-  btn.textContent='Menyimpan...';
-  try{await api('changePassword',{oldPassword:o,newPassword:n});msg.style.color='var(--green)';msg.textContent='✓ Password diubah! Silakan login ulang.';msg.style.display='block';setTok('');setTimeout(()=>{window.location.hash='#login';},2000);}
-  catch(e){msg.style.color='var(--red)';msg.textContent='Gagal: '+e.message;msg.style.display='block';}
-  btn.textContent='Simpan Password Baru';
-}
-
-async function changePwd(){
-  const o=document.getElementById('s-old').value.trim(),n=document.getElementById('s-new').value.trim(),c=document.getElementById('s-con').value.trim();
-  const btn=document.getElementById('cp-t');
-  if(!o||!n||!c){toast('Semua field wajib diisi.','err');return;}
-  if(n.length<8){toast('Min. 8 karakter.','err');return;}
-  if(n!==c){toast('Password tidak cocok.','err');return;}
-  btn.textContent='Menyimpan...';
-  try{await api('changePassword',{oldPassword:o,newPassword:n});toast('Password diubah! Login ulang ya.');setTok('');['s-old','s-new','s-con'].forEach(id=>document.getElementById(id).value='');setTimeout(()=>{window.location.hash='#login';},2200);}
-  catch(e){toast('Gagal: '+e.message,'err');}
-  btn.textContent='Ubah Password';
-}
-
-// ── ROUTER ──
-const VIEWS=['public-view','login-view','reset-view','admin-view'];
-function nav(id){
-  VIEWS.forEach(v=>{const el=document.getElementById(v);el.classList.remove('on');el.style.display='none';});
-  const el=document.getElementById(id);el.style.display='flex';el.classList.add('on');
-  // Tampilkan bottom nav hanya saat admin view di mobile
-  const bn=document.getElementById('bottom-nav');
-  if(bn){
-    const isMobile=window.innerWidth<=768;
-    bn.style.display=(id==='admin-view'&&isMobile)?'flex':'none';
-  }
-}
-function route(){
-  const h=window.location.hash;
-  if(h==='#admin'){if(isIn()){nav('admin-view');loadAdmin();}else window.location.hash='#login';}
-  else if(h==='#login'){if(isIn())window.location.hash='#admin';else nav('login-view');}
-  else if(h==='#reset'){nav('reset-view');}
-  else{nav('public-view');loadPub();}
-}
-window.addEventListener('hashchange',route);
-
-// ── PUBLIC ──
-async function loadPub(){
-  try{const d=await api('getAll');pubProfile(d.profile||{});pubLinks(d.links||[]);renderBG(d.floaters||[]);}
-  catch(e){document.getElementById('pub-links').innerHTML='<p style="text-align:center;color:var(--w5);font-size:.84rem">Gagal memuat. Periksa konfigurasi.</p>';}
-}
-function pubProfile(p){
-  document.getElementById('pub-name').textContent=p.name||'';
-  document.getElementById('pub-tag').textContent=p.tagline||'';
-  if(p.avatar_url)document.getElementById('pub-av').src=p.avatar_url;
-  ST.profile=p;
-}
-function pubLinks(links){
-  const c=document.getElementById('pub-links');
-  c.innerHTML='';
-  document.querySelectorAll('.cmenu').forEach(m=>m.remove());
-  if(!links.length){c.innerHTML='<p style="text-align:center;color:var(--w5);font-size:.84rem">Belum ada tautan.</p>';return;}
-  links.sort((a,b)=>(+a.order||99)-(+b.order||99));
-  links.forEach((lnk,i)=>{
-    const wrap=document.createElement('div');wrap.className='lwrap fu';wrap.style.animationDelay=`${0.08+i*0.07}s`;
-    const a=document.createElement('a');
-    a.href=lnk.url;a.target='_blank';a.rel='noopener noreferrer';
-    a.className='lbtn';a.style.paddingRight='58px';
-    a.innerHTML=`<span class="lic"><i class="${lnk.icon||'fas fa-link'}" style="color:rgba(255,255,255,.9)"></i></span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${lnk.title}</span>`;
-    const mb=document.createElement('button');mb.className='mbtn';mb.innerHTML='<i class="fas fa-ellipsis-vertical"></i>';
-    const mn=document.createElement('div');mn.className='cmenu';
-    const wa='https://wa.me/?text='+encodeURIComponent(lnk.title+' - '+lnk.url);
-    const tg='https://t.me/share/url?url='+encodeURIComponent(lnk.url)+'&text='+encodeURIComponent(lnk.title);
-    // Cek apakah URL adalah direct image
-    const isImg = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(lnk.url) ||
-                  lnk.url.includes('drive.google.com/uc') ||
-                  lnk.url.includes('imgur.com') ||
-                  lnk.url.includes('i.imgur');
-    const thumbHtml = isImg
-      ? '<div class="ctx-thumb-wrap"><img class="ctx-thumb" src="'+lnk.url+'" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/></div>'
-      : '';
-    mn.innerHTML=
-      thumbHtml+
-      '<a class="ci" href="'+lnk.url+'" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i>Buka Tautan</a>'+
-      '<a class="ci" data-cp="'+lnk.url.replace(/"/g,'&quot;')+'"><i class="fas fa-copy"></i>Salin Tautan</a>'+
-      '<hr class="cdv"/>'+
-      '<a class="ci" data-sh-t="'+lnk.title.replace(/"/g,'&quot;')+'" data-sh-u="'+lnk.url.replace(/"/g,'&quot;')+'"><i class="fas fa-share-alt"></i>Bagikan</a>'+
-      '<a class="ci" href="'+wa+'" target="_blank" rel="noopener"><i class="fab fa-whatsapp" style="color:var(--green)"></i>WhatsApp</a>'+
-      '<a class="ci" href="'+tg+'" target="_blank" rel="noopener"><i class="fab fa-telegram" style="color:var(--cyan)"></i>Telegram</a>';
-    mn.querySelector('[data-cp]').onclick=e=>{cpLink(e.currentTarget.dataset.cp);};
-    mn.querySelector('[data-sh-t]').onclick=e=>{shLink(e.currentTarget.dataset.shT,e.currentTarget.dataset.shU);};
-    document.body.appendChild(mn);
-    mb.onclick=e=>{e.preventDefault();e.stopPropagation();const was=mn.classList.contains('on');document.querySelectorAll('.cmenu.on').forEach(m=>m.classList.remove('on'));if(!was){const rect=mb.getBoundingClientRect();mn.style.top=(rect.bottom+6)+'px';mn.style.right=(window.innerWidth-rect.right)+'px';mn.style.left='auto';mn.classList.add('on');requestAnimationFrame(()=>{const mr=mn.getBoundingClientRect();if(mr.bottom>window.innerHeight-8)mn.style.top=(rect.top-mr.height-6)+'px';if(mr.left<8){mn.style.right='auto';mn.style.left='8px';}});};};
-    wrap.appendChild(a);wrap.appendChild(mb);c.appendChild(wrap);
-  });
-}
-document.addEventListener('click',()=>document.querySelectorAll('.cmenu.on').forEach(m=>m.classList.remove('on')));
-function cpLink(url){if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>ctToast()).catch(()=>{fbCp(url);ctToast();});else{fbCp(url);ctToast();}document.querySelectorAll('.cmenu.on').forEach(m=>m.classList.remove('on'));}
-function fbCp(t){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);}
-function ctToast(){const t=document.getElementById('ctoast');t.textContent='✓ Tautan berhasil disalin!';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
-function shLink(title,url){if(navigator.share)navigator.share({title,url}).catch(()=>{});else cpLink(url);document.querySelectorAll('.cmenu.on').forEach(m=>m.classList.remove('on'));}
-
-function renderBG(fl){
-  const c=document.getElementById('bg-floaters');c.innerHTML='';
-  fl.forEach((f,i)=>{if(!f.url)return;const img=document.createElement('img');img.src=f.url;img.className='bf';img.style.cssText=`width:${f.size||120}px;height:${f.size||120}px;left:${f.left||10}%;top:${f.top||20}%;animation-delay:${i*3}s;animation-duration:${16+i*4}s;`;c.appendChild(img);});
-}
-
-// ── ADMIN ──
-async function loadAdmin(){
-  try{
-    const d=await api('getAll');
-    ST.links=d.links||[];ST.floaters=d.floaters||[];ST.profile=d.profile||{};
-    const p=ST.profile;
-    document.getElementById('adm-n').value=p.name||'';document.getElementById('n-prev').textContent=p.name||'Nama';
-    document.getElementById('adm-t').value=p.tagline||'';document.getElementById('t-prev').textContent=p.tagline||'Tagline';
-    document.getElementById('adm-av').value=p.avatar_url||'';if(p.avatar_url)document.getElementById('av-prev').src=p.avatar_url;
-    document.getElementById('adm-c1').value=p.color1||'#2979d4';document.getElementById('adm-c2').value=p.color2||'#1a4a9e';
-    document.getElementById('s-name').textContent=p.name||'—';document.getElementById('s-tot').textContent=ST.links.length;
-    renderLinks();renderFlt();renderBG(ST.floaters);
-  }catch(e){toast('Gagal memuat: '+e.message,'err');}
-}
-function renderLinks(){
-  const list=document.getElementById('llist');
-  document.getElementById('s-tot').textContent=ST.links.length;
-  if(!ST.links.length){
-    list.innerHTML='<p style="text-align:center;padding:18px;font-size:.82rem;color:var(--w5)">Belum ada tautan. Tambahkan!</p>';
-    return;
-  }
-  const s=[...ST.links].sort((a,b)=>(+a.order||99)-(+b.order||99));
-  list.innerHTML='';
-  s.forEach(lnk=>{
-    const oi=ST.links.indexOf(lnk);
-    const d=document.createElement('div');
-    // .lia: flex row, konten tidak terpotong
-    d.style.cssText='display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--w04);border:1px solid var(--w06);border-radius:12px;transition:background .2s';
-
-    // Icon
-    const icon=document.createElement('div');
-    icon.style.cssText='width:36px;height:36px;border-radius:9px;background:rgba(41,121,212,.15);border:1px solid rgba(91,163,245,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0';
-    icon.innerHTML=`<i class="${lnk.icon||'fas fa-link'}" style="color:var(--bluel);font-size:.82rem"></i>`;
-
-    // Teks — min-width:0 supaya ellipsis bekerja
-    const txt=document.createElement('div');
-    txt.style.cssText='flex:1;min-width:0;overflow:hidden';
-    const p1=document.createElement('p');
-    p1.className='fd';
-    p1.style.cssText='font-weight:700;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-    p1.textContent=lnk.title;
-    const p2=document.createElement('p');
-    p2.style.cssText='font-size:.7rem;color:var(--w5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
-    p2.textContent=lnk.url;
-    txt.appendChild(p1);txt.appendChild(p2);
-
-    // Tombol — flex-shrink:0 agar tidak terpotong SAMA SEKALI
-    const btns=document.createElement('div');
-    btns.style.cssText='display:flex;gap:5px;flex-shrink:0';
-    const eb=document.createElement('button');
-    eb.className='btn btn-green btn-sm';
-    eb.innerHTML='<i class="fas fa-pen"></i>';
-    eb.onclick=()=>openEM(oi);
-    const db=document.createElement('button');
-    db.className='btn btn-red btn-sm';
-    db.innerHTML='<i class="fas fa-trash"></i>';
-    db.onclick=()=>delLink(oi);
-    btns.appendChild(eb);btns.appendChild(db);
-
-    d.appendChild(icon);d.appendChild(txt);d.appendChild(btns);
-    list.appendChild(d);
-  });
-}
-
-async function addLink(){
-  const t=document.getElementById('lnk-t').value.trim(),u=document.getElementById('lnk-u').value.trim(),ic=document.getElementById('lnk-i').value.trim(),o=document.getElementById('lnk-o').value.trim();
-  const btn=document.getElementById('al-t');
-  if(!t||!u){toast('Judul dan URL wajib diisi.','err');return;}
-  btn.textContent='Menambahkan...';
-  try{await api('addLink',{title:t,url:u,icon:ic,order:o});['lnk-t','lnk-u','lnk-i','lnk-o'].forEach(id=>document.getElementById(id).value='');toast('Tautan ditambahkan!');await loadAdmin();}
-  catch(e){toast('Gagal: '+e.message,'err');}
-  btn.textContent='Tambah Tautan';
-}
-function openEM(idx){const lnk=ST.links[idx];document.getElementById('e-idx').value=idx;document.getElementById('e-t').value=lnk.title||'';document.getElementById('e-i').value=lnk.icon||'';document.getElementById('e-u').value=lnk.url||'';document.getElementById('e-o').value=lnk.order||'';document.getElementById('edit-modal').classList.add('on');}
-function closeEM(){document.getElementById('edit-modal').classList.remove('on');}
-async function saveEdit(){
-  const idx=+document.getElementById('e-idx').value,lnk=ST.links[idx];
-  try{await api('updateLink',{rowIndex:lnk._row,title:document.getElementById('e-t').value.trim(),url:document.getElementById('e-u').value.trim(),icon:document.getElementById('e-i').value.trim(),order:document.getElementById('e-o').value.trim()});toast('Diperbarui!');closeEM();await loadAdmin();}
-  catch(e){toast('Gagal: '+e.message,'err');}
-}
-async function delLink(idx){if(!confirm('Hapus tautan ini?'))return;const lnk=ST.links[idx];try{await api('deleteLink',{rowIndex:lnk._row});toast('Dihapus.');await loadAdmin();}catch(e){toast('Gagal.','err');}}
-
-async function saveProfile(){
-  const btn=document.getElementById('sp-t');btn.textContent='Menyimpan...';
-  try{await api('saveProfile',{name:document.getElementById('adm-n').value.trim(),tagline:document.getElementById('adm-t').value.trim(),avatar_url:document.getElementById('adm-av').value.trim(),color1:document.getElementById('adm-c1').value,color2:document.getElementById('adm-c2').value});document.getElementById('s-name').textContent=document.getElementById('adm-n').value.trim()||'—';toast('Profil disimpan!');}
-  catch(e){toast('Gagal: '+e.message,'err');}
-  btn.textContent='Simpan Profil';
-}
-
-function renderFlt(){
-  const list=document.getElementById('flt-list'),fl=ST.floaters;
-  if(!fl.length){list.innerHTML='<p style="text-align:center;padding:14px;font-size:.82rem;color:var(--w5)">Belum ada gambar.</p>';return;}
-  list.innerHTML='';
-  fl.forEach((f,i)=>{const d=document.createElement('div');d.className='fi';d.innerHTML=`<img src="${f.url||''}" class="fth" onerror="this.style.opacity='.3'" alt=""/><div style="flex:1;min-width:0"><p style="font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--w9)">${f.url||'—'}</p><p style="font-size:.7rem;color:var(--w5)">${f.size||120}px · ${f.left||0}% kiri, ${f.top||0}% atas</p></div><button class="btn btn-red btn-sm" onclick="delFlt(${i})"><i class="fas fa-trash"></i></button>`;list.appendChild(d);});
-}
-function fprev(url){
-  const box=document.getElementById('f-prev-box');
-  const img=document.getElementById('f-prev');
-  const urlEl=document.getElementById('f-prev-url');
-  const ok=document.getElementById('f-prev-ok');
-  const err=document.getElementById('f-prev-err');
-  if(url && url.startsWith('http')){
-    if(box) box.style.display='flex';
-    if(img) img.src=url;
-    if(urlEl) urlEl.textContent=url;
-    if(ok) ok.style.display='none';
-    if(err) err.style.display='none';
-  } else {
-    if(box) box.style.display='none';
-    if(img) img.src='';
-  }
-}
-async function addFlt(){
-  const url=document.getElementById('f-url').value.trim(),sz=document.getElementById('f-sz').value,l=document.getElementById('f-l').value,t=document.getElementById('f-t').value;
-  const btn=document.getElementById('af-t');
-  if(!url){toast('URL wajib diisi.','err');return;}
-  btn.textContent='Menambahkan...';
-  try{await api('addFloater',{url,size:sz,left:l,top:t});document.getElementById('f-url').value='';document.getElementById('f-prev').style.display='none';toast('Gambar ditambahkan!');await loadAdmin();}
-  catch(e){toast('Gagal: '+e.message,'err');}
-  btn.textContent='Tambah Gambar';
-}
-async function delFlt(idx){if(!confirm('Hapus gambar?'))return;const f=ST.floaters[idx];try{await api('deleteFloater',{rowIndex:f._row});toast('Dihapus.');await loadAdmin();}catch(e){toast('Gagal.','err');}}
-
-async function loadPrev(){
-  try{const d=await api('getAll'),p=d.profile||{};
-    document.getElementById('pv-n').textContent=p.name||'—';document.getElementById('pv-t').textContent=p.tagline||'—';
-    if(p.avatar_url)document.getElementById('pv-av').src=p.avatar_url;
-    const links=(d.links||[]).sort((a,b)=>(+a.order||99)-(+b.order||99));
-    const c=document.getElementById('pv-links');c.innerHTML='';
-    links.forEach(lnk=>{const a=document.createElement('a');a.href=lnk.url;a.target='_blank';a.className='lbtn';a.style.cssText='font-size:.8rem;padding:10px 13px';a.innerHTML=`<span class="lic" style="width:28px;height:28px;border-radius:7px;font-size:.74rem"><i class="${lnk.icon||'fas fa-link'}"></i></span><span style="flex:1">${lnk.title}</span>`;c.appendChild(a);});
-  }catch(e){toast('Gagal preview','err');}
-}
-
-// ── UI ──
-function swPanel(id,el){
-  document.querySelectorAll('.pan').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
-  document.getElementById(id).classList.add('on');if(el)el.classList.add('on');
-  const titles={'p-links':'Kelola Tautan','p-profile':'Profil & Keamanan','p-floaters':'Gambar Background','p-preview':'Preview'};
-  document.getElementById('ptitle').textContent=titles[id]||'Dashboard';
-  if(id==='p-preview')loadPrev();
-  sbClose();
-}
-
-// ── SIDEBAR (JS mengontrol segalanya, tidak ada CSS class untuk overlay) ──
-
-
-// ── TAB SWITCH FLOATER ──
-
-
-// ── FILE PREVIEW ──
-
-
-// ── UPLOAD KE DRIVE VIA APPS SCRIPT ──
-async 
-
-// Drag & drop support
-document.addEventListener('DOMContentLoaded', ()=>{
-  const area = document.getElementById('upload-area');
-  if(!area) return;
-  area.addEventListener('dragover', e=>{ e.preventDefault(); area.style.borderColor='rgba(91,163,245,.8)'; });
-  area.addEventListener('dragleave', ()=>{ area.style.borderColor='rgba(91,163,245,.35)'; });
-  area.addEventListener('drop', e=>{
-    e.preventDefault();
-    area.style.borderColor='rgba(91,163,245,.35)';
-    const file = e.dataTransfer.files[0];
-    if(file && file.type.startsWith('image/')){
-      const input = document.getElementById('file-input');
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      input.files = dt.files;
-      handleFileUpload(input);
-    }
-  });
-});
-
-// ── BOTTOM NAV SWITCH ──
-function bnSwitch(panelId, el){
-  // Sync dengan panel admin
-  document.querySelectorAll('.pan').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
-  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('on'));
-  document.getElementById(panelId).classList.add('on');
-  if(el) el.classList.add('on');
-  // Update judul header
-  const titles={'p-links':'Kelola Tautan','p-profile':'Profil & Keamanan','p-floaters':'Gambar Background','p-preview':'Preview'};
-  const ptitle=document.getElementById('ptitle');
-  if(ptitle) ptitle.textContent=titles[panelId]||'Dashboard';
-  if(panelId==='p-preview') loadPrev();
-}
-
-function sbOpen(){
-  document.getElementById('sb').classList.add('on');
-  // overlay: pakai style.display langsung, BUKAN class
-  document.getElementById('sb-ov').style.display='block';
-  document.getElementById('closesb').style.display='flex';
-  document.body.style.overflow='hidden';
-}
-function sbClose(){
-  document.getElementById('sb').classList.remove('on');
-  document.getElementById('sb-ov').style.display='none';
-  document.getElementById('closesb').style.display='none';
-  document.body.style.overflow='';
-}
-function sbToggle(){
-  if(document.getElementById('sb').classList.contains('on'))sbClose();else sbOpen();
-}
-// hbtn sudah pakai onclick='sbToggle()' di HTML
-
-// ── UTILS ──
-function tpwd(id,btn){const inp=document.getElementById(id);inp.type=inp.type==='password'?'text':'password';btn.innerHTML=inp.type==='password'?'<i class="fas fa-eye"></i>':'<i class="fas fa-eye-slash"></i>';}
-let tt;
-function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className=`show ${type}`;clearTimeout(tt);tt=setTimeout(()=>{t.className='';},3500);}
-
-// ── INIT ──
-window.addEventListener('load',()=>{
-  const ls=document.getElementById('ls');
-  setTimeout(()=>{ls.classList.add('out');setTimeout(()=>{ls.style.display='none';ls.style.pointerEvents='none';},400);route();},700);
-});
-
-// Sembunyikan bottom nav jika resize ke desktop
-window.addEventListener('resize', ()=>{
-  const bn=document.getElementById('bottom-nav');
-  if(!bn)return;
-  const adminActive=document.getElementById('admin-view').classList.contains('on');
-  bn.style.display=(adminActive&&window.innerWidth<=768)?'flex':'none';
-});
-</script>
+<script src="app.js"></script>
 </body>
 </html>
