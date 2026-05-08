@@ -54,10 +54,12 @@ window.addEventListener('load', () => {
       const u = LS.load();
       if (u) {
         curUser = u;
-        // Fetch bootstrap DULU — data siap sebelum DOM dirender
-        // Splash sudah hilang, user lihat loading sebentar lalu data langsung muncul
-        await fetchBootstrap();
+        // Tampilkan skeleton dulu (instant dari cache localStorage)
+        renderStats(null);
+        if (activeSheet) updSheetBadge();
         showApp();
+        // Lalu fetch bootstrap — update UI setelah data datang
+        await fetchBootstrap();
       } else {
         showLogin();
       }
@@ -65,28 +67,22 @@ window.addEventListener('load', () => {
   }, 2400);
 });
 
-// 1 request → semua data: config + wbp + visits + stats + sheets
+// Satu request untuk semua data dashboard
 async function fetchBootstrap() {
   try {
     const r = await api({ action:'bootstrap', username:curUser, sheet:activeSheet });
     applyBootstrap(r);
   } catch(e) {
-    // Fallback: fetch stats saja jika bootstrap gagal
+    // Fallback: coba getStats saja jika bootstrap gagal
     try {
       if (activeSheet) {
         const s = await api({ action:'getStats', sheet:activeSheet });
         C.stats.d=s; C.stats.ok=true; C.stats.ts=Date.now();
+        renderStats(s);
       }
     } catch {}
     console.warn('bootstrap failed', e);
   }
-}
-
-// Sanitasi semua field array ke String agar toLowerCase tidak error
-// (Google Sheets bisa return Number/Date/boolean untuk kolom kosong)
-function sanitizeRows(rows) {
-  if (!Array.isArray(rows)) return [];
-  return rows.map(row => Array.isArray(row) ? row.map(v => v == null ? '' : v) : row);
 }
 
 // Terapkan semua data dari 1 response
@@ -105,17 +101,17 @@ function applyBootstrap(r) {
     renderSheetList();
   }
   if (r.wbp) {
-    // Sanitize: pastikan semua field adalah nilai primitif (bukan object/Date)
-    C.wbp.d = sanitizeRows(r.wbp);
-    C.wbp.ok = true; C.wbp.ts = Date.now();
-    pg.wbp.rows = [...C.wbp.d]; pg.wbp.p = 1;
-    pgLoaded['wbp'] = true;
+    C.wbp.d = r.wbp; C.wbp.ok = true; C.wbp.ts = Date.now();
+    pg.wbp.rows = [...r.wbp]; pg.wbp.p = 1;
+    // Render tabel WBP di background jika halaman WBP sudah pernah dibuka
+    // Atau siapkan data agar saat tab WBP dibuka langsung tampil
+    pgLoaded['wbp'] = true; // tandai sudah dimuat agar tidak fetch ulang
     renderWbp();
   }
   if (r.visits) {
-    C.visits.d = sanitizeRows(r.visits);
-    C.visits.ok = true; C.visits.ts = Date.now();
-    pgLoaded['riw'] = true;
+    C.visits.d = r.visits; C.visits.ok = true; C.visits.ts = Date.now();
+    pgLoaded['riw'] = true; // tandai sudah dimuat
+    // Filter akan diterapkan saat tab Riwayat dibuka
   }
   if (r.stats) {
     C.stats.d = r.stats; C.stats.ok = true; C.stats.ts = Date.now();
@@ -133,14 +129,11 @@ function showApp() {
   document.getElementById('app').style.display       = 'flex';
   document.getElementById('topbarUser').textContent  = '👤 ' + curUser;
   document.getElementById('fTgl').value = today();
-  // requestAnimationFrame: pastikan DOM sudah di-paint sebelum update angka
-  requestAnimationFrame(() => {
-    renderStats(isFresh('stats') ? C.stats.d : null);
-    updSheetBadge();
-    if (isFresh('sheets')) renderSheetList();
-    lazyObs();
-    applyGrid();
-  });
+  // Render stat badge sheet dari cache lokal dulu
+  renderStats(isFresh('stats') ? C.stats.d : null);
+  updSheetBadge();
+  lazyObs();
+  applyGrid();
 }
 
 window.addEventListener('resize', applyGrid);
@@ -380,10 +373,9 @@ async function loadStats(force=false) {
 function renderStats(r) {
   const el_t=document.getElementById('sTotal'), el_h=document.getElementById('sToday');
   const el_w=document.getElementById('sWbp'),   el_s=document.getElementById('sSheet');
-  // Tampilkan skeleton loading jika data belum ada, angka jika sudah
-  if (el_t) el_t.textContent = r?.totalVisits   != null ? r.totalVisits   : '…';
-  if (el_h) el_h.textContent = r?.todayVisits   != null ? r.todayVisits   : '…';
-  if (el_w) el_w.textContent = r?.totalPatients != null ? r.totalPatients : '…';
+  if (el_t) el_t.textContent = r?.totalVisits   ?? '—';
+  if (el_h) el_h.textContent = r?.todayVisits   ?? '—';
+  if (el_w) el_w.textContent = r?.totalPatients ?? '—';
   if (el_s) el_s.textContent = activeSheet || '—';
 }
 
@@ -509,9 +501,10 @@ async function loadWbp() {
   document.getElementById('wbpBd').innerHTML=skelRows(10);
   try {
     const r=await api({action:'getWbp'});
-    C.wbp.d=sanitizeRows(r.wbp||[]); C.wbp.ok=true; C.wbp.ts=Date.now();
+    C.wbp.d=r.wbp||[]; C.wbp.ok=true; C.wbp.ts=Date.now();
     pg.wbp.rows=[...C.wbp.d]; pg.wbp.p=1;
     renderWbp(); hideCrudSplash();
+    toast('✅ '+C.wbp.d.length+' data WBP dimuat');
   } catch { C.wbp.d=[]; renderWbp(); hideCrudSplash(); toast('❌ Gagal memuat data WBP','er'); }
 }
 
@@ -523,22 +516,18 @@ function renderWbp() {
   document.getElementById('wbpBd').innerHTML=!slice.length
     ?'<tr><td colspan="11" style="padding:2rem;text-align:center;color:var(--li)">Belum ada data WBP</td></tr>'
     :slice.map((row,i)=>{
-      const ri=C.wbp.d.indexOf(row);
-      const age=ageFrom(String(row[4]||''));
-      const r0=String(row[0]||''), r1=String(row[1]||''), r2=String(row[2]||'');
-      const r3=String(row[3]||''), r4=String(row[4]||''), r5=String(row[5]||'');
-      const r6=String(row[6]||''), r7=String(row[7]||'');
+      const ri=C.wbp.d.indexOf(row),age=ageFrom(row[4]);
       return'<tr>'+
         '<td data-label="#">'+((p-1)*PG+i+1)+'</td>'+
-        '<td data-label="No.Reg"><span class="badge bt">'+esc(r0||'—')+'</span></td>'+
-        '<td data-label="Nama" style="font-weight:600">'+esc(r3||'—')+'</td>'+
-        '<td data-label="Tgl Lahir" style="white-space:nowrap;font-size:.72rem">'+fmtDate(r4)+'</td>'+
+        '<td data-label="No.Reg"><span class="badge bt">'+esc(row[0]||'—')+'</span></td>'+
+        '<td data-label="Nama" style="font-weight:600">'+esc(row[3]||'—')+'</td>'+
+        '<td data-label="Tgl Lahir" style="white-space:nowrap;font-size:.72rem">'+fmtDate(row[4])+'</td>'+
         '<td data-label="Umur">'+(age!==''?age+' thn':'—')+'</td>'+
-        '<td data-label="JK">'+(r5==='L'?'♂ L':r5==='P'?'♀ P':r5||'—')+'</td>'+
-        '<td data-label="No. KTP" class="el" style="font-size:.71rem;color:var(--mu)">'+esc(r1||'—')+'</td>'+
-        '<td data-label="No. BPJS" class="el" style="font-size:.71rem;color:var(--mu)">'+esc(r2||'—')+'</td>'+
-        '<td data-label="Alergi" class="el" style="color:#dc2626;font-size:.72rem">'+esc(r6||'—')+'</td>'+
-        '<td data-label="Riwayat" class="el" style="font-size:.72rem">'+esc(r7||'—')+'</td>'+
+        '<td data-label="JK">'+(row[5]==='L'?'♂ L':'♀ P')+'</td>'+
+        '<td data-label="No. KTP" class="el" style="font-size:.71rem;color:var(--mu)">'+esc(row[1]||'—')+'</td>'+
+        '<td data-label="No. BPJS" class="el" style="font-size:.71rem;color:var(--mu)">'+esc(row[2]||'—')+'</td>'+
+        '<td data-label="Alergi" class="el" style="color:#dc2626;font-size:.72rem">'+esc(row[6]||'—')+'</td>'+
+        '<td data-label="Riwayat" class="el" style="font-size:.72rem">'+esc(row[7]||'—')+'</td>'+
         '<td data-label="Aksi"><div style="display:flex;gap:.25rem">'+
           '<button class="btn bs bsm" onclick="editWbpMod('+ri+')">✏️</button>'+
           '<button class="btn bd bsm" onclick="delWbp('+ri+')">🗑️</button>'+
@@ -548,12 +537,10 @@ function renderWbp() {
 }
 
 const wbpSF=debounce(()=>{
-  const q=document.getElementById('wbpSrch').value.toLowerCase().trim();
+  const q=document.getElementById('wbpSrch').value.toLowerCase();
   pg.wbp.rows=!q?[...(C.wbp.d||[])]:(C.wbp.d||[]).filter(r=>
-    String(r[3]||'').toLowerCase().includes(q)||  // Nama
-    String(r[0]||'').toLowerCase().includes(q)||  // No.Reg
-    String(r[1]||'').toLowerCase().includes(q)||  // KTP
-    String(r[2]||'').toLowerCase().includes(q));  // BPJS
+    (r[3]||'').toLowerCase().includes(q)||(r[0]||'').toLowerCase().includes(q)||
+    (r[1]||'').toLowerCase().includes(q)||(r[2]||'').toLowerCase().includes(q));
   pg.wbp.p=1; renderWbp();
 });
 
@@ -674,22 +661,14 @@ function applyDateFilter() {
   const all=C.visits.d||[];
   let filtered=all;
   if (dari||sampai) {
-    filtered=all.filter(h=>{
-      const tgl=normalDate(String(h[0]||''));
-      if(!tgl)return false;
-      if(dari&&tgl<dari)return false;
-      if(sampai&&tgl>sampai)return false;
-      return true;
-    });
+    filtered=all.filter(h=>{ const tgl=normalDate(h[0]);if(!tgl)return false;
+      if(dari&&tgl<dari)return false;if(sampai&&tgl>sampai)return false;return true; });
   }
-  const q=(document.getElementById('riwSrch')?.value||'').toLowerCase().trim();
+  const q=(document.getElementById('riwSrch')?.value||'').toLowerCase();
   pg.riw.rows=!q?filtered:filtered.filter(h=>
-    String(h[2]||'').toLowerCase().includes(q)||   // Nama WBP
-    String(h[1]||'').toLowerCase().includes(q)||   // No.Reg
-    String(h[7]||'').toLowerCase().includes(q)||   // Diagnosa
-    String(h[3]||'').toLowerCase().includes(q)||   // Keluhan
-    String(h[10]||'').toLowerCase().includes(q)||  // KTP
-    String(h[11]||'').toLowerCase().includes(q));  // BPJS
+    (h[2]||'').toLowerCase().includes(q)||(h[1]||'').toLowerCase().includes(q)||
+    (h[7]||'').toLowerCase().includes(q)||(h[3]||'').toLowerCase().includes(q)||
+    (h[10]||'').toLowerCase().includes(q)||(h[11]||'').toLowerCase().includes(q));
   pg.riw.p=1; renderRiw();
 }
 
@@ -700,8 +679,9 @@ async function loadVisits() {
   document.getElementById('riwBd').innerHTML=skelRows(9);
   try {
     const r=await api({action:'getAllVisits',sheet:activeSheet});
-    C.visits.d=sanitizeRows(r.visits||[]); C.visits.ok=true; C.visits.ts=Date.now();
+    C.visits.d=r.visits||[]; C.visits.ok=true; C.visits.ts=Date.now();
     applyDateFilter(); hideCrudSplash();
+    toast('✅ '+C.visits.d.length+' total kunjungan dimuat');
   } catch { C.visits.d=[]; applyDateFilter(); hideCrudSplash(); toast('❌ Gagal memuat riwayat','er'); }
 }
 
@@ -715,20 +695,16 @@ function renderRiw() {
   document.getElementById('riwBd').innerHTML=!slice.length
     ?'<tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--li)">Tidak ada kunjungan untuk periode ini 📭</td></tr>'
     :slice.map(h=>{
-      const ri=C.visits.d.indexOf(h);
-      const age=ageFrom(String(h[12]||''));
-      const h0=String(h[0]||''), h1=String(h[1]||''), h2=String(h[2]||'');
-      const h7=String(h[7]||''), h8=String(h[8]||'');
-      const h10=String(h[10]||''), h11=String(h[11]||'');
+      const ri=C.visits.d.indexOf(h),age=ageFrom(h[12]||'');
       return'<tr>'+
-        '<td data-label="Tanggal" style="white-space:nowrap;font-size:.72rem">'+fmtDate(h0)+'</td>'+
-        '<td data-label="No.Reg"><span class="badge bt">'+esc(h1||'—')+'</span></td>'+
-        '<td data-label="No. BPJS" style="font-size:.72rem;color:var(--mu)">'+esc(h11||'—')+'</td>'+
-        '<td data-label="No. KTP"  style="font-size:.72rem;color:var(--mu)">'+esc(h10||'—')+'</td>'+
-        '<td data-label="Nama" style="font-weight:600">'+esc(h2||'—')+'</td>'+
+        '<td data-label="Tanggal" style="white-space:nowrap;font-size:.72rem">'+fmtDate(h[0])+'</td>'+
+        '<td data-label="No.Reg"><span class="badge bt">'+esc(h[1]||'—')+'</span></td>'+
+        '<td data-label="No. BPJS" style="font-size:.72rem;color:var(--mu)">'+esc(h[11]||'—')+'</td>'+
+        '<td data-label="No. KTP"  style="font-size:.72rem;color:var(--mu)">'+esc(h[10]||'—')+'</td>'+
+        '<td data-label="Nama" style="font-weight:600">'+esc(h[2]||'—')+'</td>'+
         '<td data-label="Umur">'+(age!==''?age+' thn':'—')+'</td>'+
-        '<td data-label="Diagnosa" class="el" style="color:var(--t3);font-weight:500">'+esc(h7||'—')+'</td>'+
-        '<td data-label="Therapy" style="min-width:130px">'+renderDrugs(h8)+'</td>'+
+        '<td data-label="Diagnosa" class="el" style="color:var(--t3);font-weight:500">'+esc(h[7]||'—')+'</td>'+
+        '<td data-label="Therapy" style="min-width:130px">'+renderDrugs(h[8])+'</td>'+
         '<td data-label="Aksi"><div style="display:flex;gap:.25rem">'+
           '<button class="btn bs bsm" onclick="viewVisit('+ri+')" title="Detail">👁</button>'+
           '<button class="btn bs bsm" onclick="editVisit('+ri+')" title="Edit">✏️</button>'+
