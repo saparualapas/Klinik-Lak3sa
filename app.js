@@ -82,14 +82,14 @@ async function fetchBootstrap() {
   }
 }
 
-// Sanitasi semua field array ke String agar toLowerCase tidak error
-// (Google Sheets bisa return Number/Date/boolean untuk kolom kosong)
+// Sanitasi semua field ke nilai primitif (Google Sheets bisa kirim Date object)
 function sanitizeRows(rows) {
   if (!Array.isArray(rows)) return [];
   return rows.map(row => Array.isArray(row) ? row.map(v => v == null ? '' : v) : row);
 }
 
 // Terapkan semua data dari 1 response
+// DOM render dilakukan di showApp() setelah #app visible
 function applyBootstrap(r) {
   if (r.apiUrl && r.apiUrl !== API_URL) {
     API_URL = r.apiUrl; localStorage.setItem('klinik_api', r.apiUrl);
@@ -97,20 +97,16 @@ function applyBootstrap(r) {
   if (r.activeSheet) {
     activeSheet = r.activeSheet;
     localStorage.setItem('klinik_sheet', r.activeSheet);
-    updSheetBadge();
   }
   if (r.sheets) {
     allSheets = r.sheets.filter(s => /^Data \d{4}$/.test(s)).sort();
     C.sheets.d = allSheets; C.sheets.ok = true; C.sheets.ts = Date.now();
-    renderSheetList();
   }
   if (r.wbp) {
-    // Sanitize: pastikan semua field adalah nilai primitif (bukan object/Date)
     C.wbp.d = sanitizeRows(r.wbp);
     C.wbp.ok = true; C.wbp.ts = Date.now();
     pg.wbp.rows = [...C.wbp.d]; pg.wbp.p = 1;
     pgLoaded['wbp'] = true;
-    renderWbp();
   }
   if (r.visits) {
     C.visits.d = sanitizeRows(r.visits);
@@ -119,7 +115,18 @@ function applyBootstrap(r) {
   }
   if (r.stats) {
     C.stats.d = r.stats; C.stats.ok = true; C.stats.ts = Date.now();
-    renderStats(r.stats);
+  }
+  // Jika app sudah visible (login flow), update UI langsung
+  const app = document.getElementById('app');
+  if (app && app.style.display !== 'none') {
+    renderStats(C.stats.d || null);
+    updSheetBadge();
+    if (isFresh('sheets')) renderSheetList();
+    // Update WBP tabel jika sedang di halaman WBP
+    const wbpPage = document.getElementById('page-wbp');
+    if (wbpPage && wbpPage.classList.contains('on') && isFresh('wbp')) {
+      pg.wbp.rows = [...C.wbp.d]; renderWbp();
+    }
   }
 }
 
@@ -133,10 +140,11 @@ function showApp() {
   document.getElementById('app').style.display       = 'flex';
   document.getElementById('topbarUser').textContent  = '👤 ' + curUser;
   document.getElementById('fTgl').value = today();
-  // Render langsung — data sudah ada di cache setelah fetchBootstrap selesai
+  // Sekarang #app sudah visible — render semua data dari cache
   renderStats(isFresh('stats') ? C.stats.d : null);
   updSheetBadge();
   if (isFresh('sheets')) renderSheetList();
+  if (isFresh('wbp'))    { pg.wbp.rows=[...C.wbp.d]; renderWbp(); }
   setTimeout(() => { lazyObs(); applyGrid(); }, 50);
 }
 
@@ -681,27 +689,33 @@ async function delWbp(i) {
 let riwFilterMode='hari', riwFilterDari='', riwFilterSmpai='';
 
 function getRiwRange(mode) {
-  const t=today(), d=new Date(t+'T00:00:00');
-  if (mode==='hari')    return {dari:t,sampai:t};
-  if (mode==='kemarin') { const k=new Date(d);k.setDate(k.getDate()-1);const ks=k.toISOString().split('T')[0];return{dari:ks,sampai:ks}; }
-  if (mode==='minggu')  { const w=new Date(d);w.setDate(w.getDate()-6);return{dari:w.toISOString().split('T')[0],sampai:t}; }
-  if (mode==='bulan')   return {dari:t.substring(0,7)+'-01',sampai:t};
-  if (mode==='range')   return {dari:riwFilterDari,sampai:riwFilterSmpai};
-  return {dari:'',sampai:''};
+  const t = today(); // yyyy-MM-dd WIT
+  if (mode==='hari')   return { dari:t, sampai:t };
+  if (mode==='minggu') {
+    // 7 hari terakhir termasuk hari ini
+    const ms = Date.now() + WIT_OFFSET_MS;
+    const d7 = new Date(ms - 6*24*60*60*1000);
+    const dari = d7.toISOString().slice(0,10);
+    return { dari, sampai:t };
+  }
+  if (mode==='bulan') {
+    return { dari: t.slice(0,7)+'-01', sampai:t };
+  }
+  if (mode==='range') return { dari:riwFilterDari, sampai:riwFilterSmpai };
+  return { dari:'', sampai:'' }; // semua
 }
 
 function getRiwLabel(mode,dari,sampai) {
-  if (mode==='hari')    return '📅 Hari ini, '+fmtDate(dari);
-  if (mode==='kemarin') return '📅 Kemarin, '+fmtDate(dari);
-  if (mode==='minggu')  return '📅 '+fmtDate(dari)+' – '+fmtDate(sampai);
-  if (mode==='bulan')   { const[y,m]=dari.split('-').map(Number); const mn=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; return'📅 '+mn[m-1]+' '+y; }
-  if (mode==='range')   { if(!dari&&!sampai)return'📅 Pilih rentang';if(dari&&sampai)return'📅 '+fmtDate(dari)+' – '+fmtDate(sampai);return'📅 '+fmtDate(dari||sampai); }
+  if (mode==='hari')   return '📅 Hari ini, '+fmtDate(dari);
+  if (mode==='minggu') return '📅 '+fmtDate(dari)+' – '+fmtDate(sampai);
+  if (mode==='bulan')  { const[y,m]=dari.split('-').map(Number); const mn=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; return'📅 '+mn[m-1]+' '+y; }
+  if (mode==='range')  { if(!dari&&!sampai)return'📅 Pilih rentang';if(dari&&sampai)return'📅 '+fmtDate(dari)+' – '+fmtDate(sampai);return'📅 '+fmtDate(dari||sampai); }
   return '📅 Semua data';
 }
 
 function setFilterMode(mode) {
   riwFilterMode=mode;
-  ['Hari','Kemarin','Minggu','Bulan','Range','Semua'].forEach(m=>{
+  ['Hari','Minggu','Bulan','Range','Semua'].forEach(m=>{
     const el=document.getElementById('fmBtn'+m); if(el) el.classList.toggle('on',m.toLowerCase()===mode);
   });
   const ri=document.getElementById('rangeInputs');

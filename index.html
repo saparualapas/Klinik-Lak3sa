@@ -371,16 +371,16 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       <div class="page on" id="page-pem">
         <!-- Stats -->
         <div class="sgrid">
-          <div class="sc lzy" style="background:linear-gradient(135deg,var(--t3),var(--t2))">
+          <div class="sc" style="background:linear-gradient(135deg,var(--t3),var(--t2))">
             <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">TOTAL KUNJUNGAN</div>
             <div class="snum" id="sTotal">—</div>
             <div style="font-size:.63rem;opacity:.7;margin-top:.12rem" id="sSheet">—</div>
           </div>
-          <div class="sc lzy" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">
+          <div class="sc" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">
             <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">HARI INI</div>
             <div class="snum" id="sToday">—</div>
           </div>
-          <div class="sc lzy" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">
+          <div class="sc" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">
             <div style="font-size:.59rem;font-weight:700;opacity:.8;letter-spacing:.5px">TOTAL WBP</div>
             <div class="snum" id="sWbp">—</div>
           </div>
@@ -548,12 +548,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
           <div style="background:#f0fdfa;border-radius:13px;padding:.8rem .95rem;margin-bottom:.8rem">
             <div style="display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin-bottom:.5rem">
               <div style="display:flex;gap:.2rem;background:#e2faf7;border-radius:10px;padding:.18rem;flex-wrap:wrap">
-                <button id="fmBtnHari"    class="fmb on"  onclick="setFilterMode('hari')"   >Hari ini</button>
-                <button id="fmBtnKemarin" class="fmb"     onclick="setFilterMode('kemarin')">Kemarin</button>
-                <button id="fmBtnMinggu"  class="fmb"     onclick="setFilterMode('minggu')" >7 Hari</button>
-                <button id="fmBtnBulan"   class="fmb"     onclick="setFilterMode('bulan')"  >Bulan ini</button>
-                <button id="fmBtnRange"   class="fmb"     onclick="setFilterMode('range')"  >Rentang</button>
-                <button id="fmBtnSemua"   class="fmb"     onclick="setFilterMode('semua')"  >Semua</button>
+                <button id="fmBtnHari"   class="fmb on" onclick="setFilterMode('hari')"  >Hari ini</button>
+                <button id="fmBtnMinggu" class="fmb"    onclick="setFilterMode('minggu')">7 Hari</button>
+                <button id="fmBtnBulan"  class="fmb"    onclick="setFilterMode('bulan')" >Bulan ini</button>
+                <button id="fmBtnRange"  class="fmb"    onclick="setFilterMode('range')" >Rentang</button>
+                <button id="fmBtnSemua"  class="fmb"    onclick="setFilterMode('semua')" >Semua</button>
               </div>
               <span id="riwFilterLabel" style="font-size:.74rem;font-weight:700;color:var(--t3);background:#ccfbf1;padding:.26rem .7rem;border-radius:99px;white-space:nowrap"></span>
             </div>
