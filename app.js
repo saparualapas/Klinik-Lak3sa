@@ -133,14 +133,11 @@ function showApp() {
   document.getElementById('app').style.display       = 'flex';
   document.getElementById('topbarUser').textContent  = '👤 ' + curUser;
   document.getElementById('fTgl').value = today();
-  // requestAnimationFrame: pastikan DOM sudah di-paint sebelum update angka
-  requestAnimationFrame(() => {
-    renderStats(isFresh('stats') ? C.stats.d : null);
-    updSheetBadge();
-    if (isFresh('sheets')) renderSheetList();
-    lazyObs();
-    applyGrid();
-  });
+  // Render langsung — data sudah ada di cache setelah fetchBootstrap selesai
+  renderStats(isFresh('stats') ? C.stats.d : null);
+  updSheetBadge();
+  if (isFresh('sheets')) renderSheetList();
+  setTimeout(() => { lazyObs(); applyGrid(); }, 50);
 }
 
 window.addEventListener('resize', applyGrid);
@@ -161,32 +158,77 @@ function animateRows(tbodyId) {
   });
 }
 
-// ═══════════════ UTILS ═══════════════════════════════════════
-const WIT_OFFSET = 9 * 60;
-function nowWIT() { const d=new Date(); return new Date(d.getTime()+(WIT_OFFSET-d.getTimezoneOffset())*60000); }
-const today = () => nowWIT().toISOString().split('T')[0];
+// ═══════════════ WAKTU & TANGGAL (WIT UTC+9 Maluku) ══════════
+// Semua fungsi tanggal menggunakan WIT = UTC+9 (Asia/Jayapura)
+// Tidak bergantung pada timezone browser
 
+const WIT_OFFSET_MS = 9 * 60 * 60 * 1000; // 9 jam dalam ms
+
+// Tanggal WIT sekarang sebagai string yyyy-MM-dd
+function today() {
+  return new Date(Date.now() + WIT_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+// Objek Date di-adjust ke WIT
+function nowWIT() {
+  return new Date(Date.now() + WIT_OFFSET_MS);
+}
+
+// Normalisasi nilai tanggal dari spreadsheet ke format yyyy-MM-dd
 function normalDate(v) {
-  if (!v) return '';
+  if (!v && v !== 0) return '';
   const s = String(v).trim();
+  // Sudah format yyyy-MM-dd
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // ISO string dengan T — ambil bagian tanggal saja
   if (s.includes('T')) return s.substring(0, 10);
+  // Format dd/MM/yyyy atau dd-MM-yyyy
+  const dmy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
+  // Google Sheets serial date number (jarang tapi bisa terjadi)
+  if (/^\d+$/.test(s) && Number(s) > 40000) {
+    const serial = Number(s);
+    const msFromEpoch = (serial - 25569) * 86400 * 1000;
+    return new Date(msFromEpoch + WIT_OFFSET_MS).toISOString().slice(0, 10);
+  }
   return s;
 }
 
+// Format tanggal untuk tampilan: "09 Mei 2026"
+// Selalu interpret sebagai WIT — tidak bergantung timezone browser
 function fmtDate(v) {
-  if (!v) return '—';
-  try { return new Date(normalDate(v)+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
-  catch { return String(v); }
+  if (!v && v !== 0) return '—';
+  const s = normalDate(String(v));
+  if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return String(v) || '—';
+  const [y, m, d] = s.split('-').map(Number);
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+  return `${String(d).padStart(2,'0')} ${months[m-1]} ${y}`;
 }
 
+// Format tanggal panjang: "Senin, 09 Mei 2026"
+function fmtDateLong(v) {
+  if (!v) return '—';
+  const s = normalDate(String(v));
+  if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return String(v)||'—';
+  const [y, m, d] = s.split('-').map(Number);
+  const days   = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const months = ['Januari','Februari','Maret','April','Mei','Juni',
+                  'Juli','Agustus','September','Oktober','November','Desember'];
+  const dow = new Date(y, m-1, d).getDay();
+  return `${days[dow]}, ${String(d).padStart(2,'0')} ${months[m-1]} ${y}`;
+}
+
+// Hitung umur dari tanggal lahir menggunakan tanggal WIT sekarang
 function ageFrom(dob) {
   if (!dob) return '';
-  const s = normalDate(dob); if (!s) return '';
-  const b = new Date(s+'T00:00:00'), n = new Date();
-  let a = n.getFullYear() - b.getFullYear();
-  if (n.getMonth() < b.getMonth() || (n.getMonth()===b.getMonth() && n.getDate()<b.getDate())) a--;
-  return isNaN(a)||a<0 ? '' : a;
+  const s = normalDate(String(dob));
+  if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
+  const [by, bm, bd] = s.split('-').map(Number);
+  const now = nowWIT();
+  const ny = now.getUTCFullYear(), nm = now.getUTCMonth()+1, nd = now.getUTCDate();
+  let age = ny - by;
+  if (nm < bm || (nm === bm && nd < bd)) age--;
+  return isNaN(age) || age < 0 ? '' : age;
 }
 
 function autoAge(inId, outId) {
@@ -378,13 +420,22 @@ async function loadStats(force=false) {
 }
 
 function renderStats(r) {
-  const el_t=document.getElementById('sTotal'), el_h=document.getElementById('sToday');
-  const el_w=document.getElementById('sWbp'),   el_s=document.getElementById('sSheet');
-  // Tampilkan skeleton loading jika data belum ada, angka jika sudah
-  if (el_t) el_t.textContent = r?.totalVisits   != null ? r.totalVisits   : '…';
-  if (el_h) el_h.textContent = r?.todayVisits   != null ? r.todayVisits   : '…';
-  if (el_w) el_w.textContent = r?.totalPatients != null ? r.totalPatients : '…';
-  if (el_s) el_s.textContent = activeSheet || '—';
+  const s = document.getElementById('sSheet');
+  if (s) s.textContent = activeSheet || '—';
+  const el_t = document.getElementById('sTotal');
+  const el_h = document.getElementById('sToday');
+  const el_w = document.getElementById('sWbp');
+  if (!r) {
+    // Belum ada data — tampilkan dash
+    if (el_t) el_t.textContent = '—';
+    if (el_h) el_h.textContent = '—';
+    if (el_w) el_w.textContent = '—';
+    return;
+  }
+  // Data sudah ada — tampilkan angka (termasuk 0)
+  if (el_t) el_t.textContent = r.totalVisits   != null ? String(r.totalVisits)   : '—';
+  if (el_h) el_h.textContent = r.todayVisits   != null ? String(r.todayVisits)   : '—';
+  if (el_w) el_w.textContent = r.totalPatients != null ? String(r.totalPatients) : '—';
 }
 
 // ═══════════════ USER CONFIG ══════════════════════════════════
@@ -643,7 +694,7 @@ function getRiwLabel(mode,dari,sampai) {
   if (mode==='hari')    return '📅 Hari ini, '+fmtDate(dari);
   if (mode==='kemarin') return '📅 Kemarin, '+fmtDate(dari);
   if (mode==='minggu')  return '📅 '+fmtDate(dari)+' – '+fmtDate(sampai);
-  if (mode==='bulan')   { const[y,m]=dari.split('-');return'📅 '+new Date(parseInt(y),parseInt(m)-1,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'}); }
+  if (mode==='bulan')   { const[y,m]=dari.split('-').map(Number); const mn=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; return'📅 '+mn[m-1]+' '+y; }
   if (mode==='range')   { if(!dari&&!sampai)return'📅 Pilih rentang';if(dari&&sampai)return'📅 '+fmtDate(dari)+' – '+fmtDate(sampai);return'📅 '+fmtDate(dari||sampai); }
   return '📅 Semua data';
 }

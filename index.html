@@ -610,27 +610,30 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
               </div>
             </div>
           </div>
-          <!-- User Manager -->
+          <!-- Ganti Password -->
           <div class="card lzy" style="padding:1.25rem">
-            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">👤 Manajemen User</h3>
-            <div class="fw"><label class="fl">USERNAME BARU</label><input type="text" id="newUsr" class="f" placeholder="username"></div>
-            <div class="fw"><label class="fl">PASSWORD</label><input type="password" id="newPwd" class="f" placeholder="password"></div>
-            <button class="btn bp" onclick="addUser()" style="width:100%;margin-bottom:.875rem">+ Tambah User</button>
-            <div id="userList"></div>
-            <div style="border-top:1px solid var(--bd);margin-top:.875rem;padding-top:.875rem">
-              <div style="font-size:.69rem;font-weight:700;color:var(--li);margin-bottom:.5rem">GANTI PASSWORD SAYA</div>
-              <div class="fw"><label class="fl">Password Lama</label><input type="password" id="pw2o" class="f"></div>
-              <div class="fw"><label class="fl">Password Baru</label><input type="password" id="pw2n" class="f"></div>
-              <div class="fw"><label class="fl">Konfirmasi</label><input type="password" id="pw2c" class="f"></div>
-              <button class="btn bp" onclick="doCP2()" style="width:100%">🔑 Simpan Password</button>
-            </div>
+            <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:1rem;font-size:.92rem">🔑 Ganti Password</h3>
+            <div class="fw"><label class="fl">Password Lama</label><input type="password" id="pw2o" class="f" placeholder="Password saat ini"></div>
+            <div class="fw"><label class="fl">Password Baru</label><input type="password" id="pw2n" class="f" placeholder="Password baru (min. 4 karakter)"></div>
+            <div class="fw"><label class="fl">Konfirmasi Password Baru</label><input type="password" id="pw2c" class="f" placeholder="Ulangi password baru"></div>
+            <button class="btn bp" onclick="doCP2()" style="width:100%">🔑 Simpan Password</button>
+            <p style="font-size:.71rem;color:var(--li);margin-top:.6rem">Untuk menambah/menghapus user: edit langsung sheet <strong>"users"</strong> di Google Sheets (A=username, B=password).</p>
           </div>
-          <!-- API URL Config -->
+          <!-- URL API -->
           <div class="card lzy" style="padding:1.25rem">
             <h3 style="font-family:'Sora',sans-serif;font-weight:800;color:var(--t3);margin-bottom:.85rem;font-size:.92rem">🔗 Konfigurasi URL API</h3>
-            <div class="fw"><label class="fl">URL GOOGLE APPS SCRIPT WEB APP</label><input type="url" id="apiUrlInp" class="f" placeholder="https://script.google.com/macros/s/..."></div>
-            <button class="btn bp" onclick="saveApiUrl()" style="width:100%">💾 Simpan URL</button>
-            <p style="font-size:.72rem;color:var(--li);margin-top:.55rem">URL disimpan di browser (localStorage) <strong>dan</strong> di sheet "config" spreadsheet.</p>
+            <div style="background:#f0fdfa;border-radius:11px;padding:.85rem;margin-bottom:.85rem;font-size:.78rem;color:#475569;line-height:1.7">
+              <p style="font-weight:700;color:var(--t3);margin-bottom:.35rem">📌 Cara ganti spreadsheet:</p>
+              <ol style="padding-left:1.1rem;display:flex;flex-direction:column;gap:.25rem;margin:0">
+                <li>Deploy Apps Script baru → <em>Web App → Anyone</em> → copy URL</li>
+                <li>Paste URL di bawah → klik <strong>Simpan</strong></li>
+                <li>Tersimpan untuk akun <strong id="urlUserLabel" style="color:var(--t3)">—</strong> di semua device</li>
+              </ol>
+            </div>
+            <div class="fw"><label class="fl">URL GOOGLE APPS SCRIPT WEB APP</label>
+              <input type="url" id="apiUrlInp" class="f" placeholder="https://script.google.com/macros/s/.../exec"></div>
+            <button class="btn bp" onclick="saveApiUrl()" style="width:100%">💾 Simpan URL (berlaku semua device)</button>
+            <p style="font-size:.71rem;color:var(--li);margin-top:.55rem">✅ URL tersimpan per-akun di kolom C sheet <strong>"users"</strong> — otomatis dimuat saat login dari device manapun.</p>
           </div>
         </div>
       </div>
