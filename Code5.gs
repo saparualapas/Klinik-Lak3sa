@@ -170,7 +170,6 @@ function doGet(e) {
   try {
     const a = e.parameter.action;
     if (a === 'getConfig')   return handleGetConfig(e.parameter.username);
-    if (a === 'bootstrap')   return handleBootstrap(e.parameter.username, e.parameter.sheet);
     if (a === 'getWbp')      return out({ wbp: readPatients() });
     if (a === 'getSheets')   return out({ sheets: SS.getSheets().map(s => s.getName()) });
     if (a === 'getStats')    return handleGetStats(e.parameter.sheet);
@@ -238,50 +237,6 @@ function handleSaveUserConfig(d) {
   return out({ success: true });
 }
 
-// Bootstrap: 1 request dapat SEMUA data (config + wbp + visits + stats + sheets)
-// Dipanggil saat reload halaman (session masih aktif)
-function handleBootstrap(username, sheetName) {
-  const uc          = username ? getUserConfig(username) : { apiUrl: '', activeSheet: '' };
-  const globalSheet = getConfig('active_sheet') || ('Data ' + new Date().getFullYear());
-  const activeSheet = uc.activeSheet || globalSheet;
-  const targetSheet = sheetName || activeSheet;
-  const sheets      = SS.getSheets().map(s => s.getName());
-
-  // WBP lengkap
-  const wbp = readPatients();
-
-  // Visits dengan join patient
-  let visits = [];
-  try {
-    const raw  = readVisits(targetSheet);
-    const pMap = buildPatientMap();
-    visits = raw.map(v => {
-      const p = pMap[String(v[1]).trim()] || null;
-      return [...v,
-        p ? String(p[1]||'') : '', p ? String(p[2]||'') : '',
-        p ? String(p[4]||'') : '', p ? String(p[5]||'') : '',
-        p ? String(p[6]||'') : '', p ? String(p[7]||'') : '',
-      ];
-    });
-  } catch(e) {}
-
-  // Stats
-  let totalVisits = visits.length, todayVisits = 0;
-  try {
-    const today = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
-    todayVisits = visits.filter(v => fmtDate(v[0]) === today).length;
-  } catch(e) {}
-
-  return out({
-    activeSheet: activeSheet,
-    apiUrl:      uc.apiUrl || getConfig('api_url') || '',
-    sheets:      sheets,
-    wbp:         wbp,
-    visits:      visits,
-    stats:       { totalVisits, todayVisits, totalPatients: wbp.length }
-  });
-}
-
 // ── AUTH ──────────────────────────────────────────────────────
 function handleLogin(d) {
   const s = SS.getSheetByName('users');
@@ -292,52 +247,14 @@ function handleLogin(d) {
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).trim() === String(d.username).trim() &&
         String(rows[i][1]).trim() === String(d.password).trim()) {
-
-      const uc          = getUserConfig(d.username);
-      const globalSheet = getConfig('active_sheet') || ('Data ' + new Date().getFullYear());
-      const activeSheet = uc.activeSheet || globalSheet;
-      const apiUrl      = uc.apiUrl || getConfig('api_url') || '';
-
-      // Semua sheet list
-      const sheets = SS.getSheets().map(s => s.getName());
-
-      // Data WBP lengkap
-      const wbp = readPatients();
-
-      // Semua kunjungan di sheet aktif (untuk cache)
-      let visits = [];
-      try {
-        const raw = readVisits(activeSheet);
-        const pMap = buildPatientMap();
-        visits = raw.map(v => {
-          const p = pMap[String(v[1]).trim()] || null;
-          return [...v,
-            p ? String(p[1]||'') : '',
-            p ? String(p[2]||'') : '',
-            p ? String(p[4]||'') : '',
-            p ? String(p[5]||'') : '',
-            p ? String(p[6]||'') : '',
-            p ? String(p[7]||'') : '',
-          ];
-        });
-      } catch(e) {}
-
-      // Stats
-      let totalVisits = 0, todayVisits = 0, totalPatients = wbp.length;
-      try {
-        totalVisits = visits.length;
-        const today = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
-        todayVisits = visits.filter(v => fmtDate(v[0]) === today).length;
-      } catch(e) {}
-
+      // Login sukses — kembalikan config user sekaligus
+      const uc = getUserConfig(d.username);
+      const globalSheet = getConfig('active_sheet') ||
+                          ('Data ' + String(new Date().getFullYear()));
       return out({
         success:     true,
-        activeSheet: activeSheet,
-        apiUrl:      apiUrl,
-        sheets:      sheets,
-        wbp:         wbp,
-        visits:      visits,
-        stats:       { totalVisits, todayVisits, totalPatients }
+        activeSheet: uc.activeSheet || globalSheet,
+        apiUrl:      uc.apiUrl      || getConfig('api_url') || ''
       });
     }
   }
