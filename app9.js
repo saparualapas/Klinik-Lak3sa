@@ -40,6 +40,11 @@ const LS = {
 };
 
 // ═══════════════ BOOT ════════════════════════════════════════
+// Strategi:
+// 1. Tampilkan splash
+// 2. Cek session (sudah login?)
+// 3a. Sudah login → 1 request "bootstrap" → dapat semua data → showApp dengan data lengkap
+// 3b. Belum login → showLogin
 window.addEventListener('load', () => {
   setTimeout(() => {
     const sp = document.getElementById('splash');
@@ -49,11 +54,10 @@ window.addEventListener('load', () => {
       const u = LS.load();
       if (u) {
         curUser = u;
-        // Tampilkan app dulu dengan data localStorage (instant)
-        const cs = localStorage.getItem('klinik_sheet');
-        if (cs) activeSheet = cs;
-        showApp();           // render dengan data kosong dulu
-        fetchAndUpdate();    // lalu fetch dari server, update UI setelah dapat data
+        // Fetch bootstrap DULU — data siap sebelum DOM dirender
+        // Splash sudah hilang, user lihat loading sebentar lalu data langsung muncul
+        await fetchBootstrap();
+        showApp();
       } else {
         showLogin();
       }
@@ -61,28 +65,32 @@ window.addEventListener('load', () => {
   }, 2400);
 });
 
-// Fetch data dari server lalu update UI — dipanggil di background
-async function fetchAndUpdate() {
+// 1 request → semua data: config + wbp + visits + stats + sheets
+async function fetchBootstrap() {
   try {
     const r = await api({ action:'bootstrap', username:curUser, sheet:activeSheet });
-    storeBootstrap(r);
-    updateUI();             // update semua element setelah data masuk
+    applyBootstrap(r);
   } catch(e) {
-    console.warn('bootstrap failed:', e);
-    // Fallback: coba getStats saja
+    // Fallback: fetch stats saja jika bootstrap gagal
     try {
       if (activeSheet) {
         const s = await api({ action:'getStats', sheet:activeSheet });
-        C.stats.d = s; C.stats.ok = true; C.stats.ts = Date.now();
-        updateStats();
+        C.stats.d=s; C.stats.ok=true; C.stats.ts=Date.now();
       }
     } catch {}
+    console.warn('bootstrap failed', e);
   }
 }
 
-// Simpan semua data ke cache (tanpa render)
-function storeBootstrap(r) {
-  if (!r) return;
+// Sanitasi semua field ke nilai primitif (Google Sheets bisa kirim Date object)
+function sanitizeRows(rows) {
+  if (!Array.isArray(rows)) return [];
+  return rows.map(row => Array.isArray(row) ? row.map(v => v == null ? '' : v) : row);
+}
+
+// Terapkan semua data dari 1 response
+// DOM render dilakukan di showApp() setelah #app visible
+function applyBootstrap(r) {
   if (r.apiUrl && r.apiUrl !== API_URL) {
     API_URL = r.apiUrl; localStorage.setItem('klinik_api', r.apiUrl);
   }
@@ -108,42 +116,18 @@ function storeBootstrap(r) {
   if (r.stats) {
     C.stats.d = r.stats; C.stats.ok = true; C.stats.ts = Date.now();
   }
-}
-
-// Update semua UI setelah data masuk ke cache
-function updateUI() {
-  updateStats();
-  updSheetBadge();
-  if (isFresh('sheets')) renderSheetList();
-  // Render WBP tabel jika halaman WBP sedang aktif
-  const wbpPage = document.getElementById('page-wbp');
-  if (wbpPage && wbpPage.classList.contains('on') && isFresh('wbp')) {
-    pg.wbp.rows = [...C.wbp.d]; renderWbp();
+  // Jika app sudah visible (login flow), update UI langsung
+  const app = document.getElementById('app');
+  if (app && app.style.display !== 'none') {
+    renderStats(C.stats.d || null);
+    updSheetBadge();
+    if (isFresh('sheets')) renderSheetList();
+    // Update WBP tabel jika sedang di halaman WBP
+    const wbpPage = document.getElementById('page-wbp');
+    if (wbpPage && wbpPage.classList.contains('on') && isFresh('wbp')) {
+      pg.wbp.rows = [...C.wbp.d]; renderWbp();
+    }
   }
-  // Apply filter riwayat jika halaman Riwayat sedang aktif
-  const riwPage = document.getElementById('page-riw');
-  if (riwPage && riwPage.classList.contains('on') && isFresh('visits')) {
-    applyDateFilter();
-  }
-}
-
-// Update hanya stat cards — aman dipanggil kapan saja
-function updateStats() {
-  const r = C.stats.d;
-  const t = document.getElementById('sTotal');
-  const h = document.getElementById('sToday');
-  const w = document.getElementById('sWbp');
-  const s = document.getElementById('sSheet');
-  if (t) t.textContent = (r && r.totalVisits   != null) ? String(r.totalVisits)   : '—';
-  if (h) h.textContent = (r && r.todayVisits   != null) ? String(r.todayVisits)   : '—';
-  if (w) w.textContent = (r && r.totalPatients != null) ? String(r.totalPatients) : '—';
-  if (s) s.textContent = activeSheet || '—';
-}
-
-// Sanitasi semua field ke nilai primitif (Google Sheets bisa kirim Date object)
-function sanitizeRows(rows) {
-  if (!Array.isArray(rows)) return [];
-  return rows.map(row => Array.isArray(row) ? row.map(v => v == null ? '' : v) : row);
 }
 
 function showLogin() {
@@ -156,11 +140,11 @@ function showApp() {
   document.getElementById('app').style.display       = 'flex';
   document.getElementById('topbarUser').textContent  = '👤 ' + curUser;
   document.getElementById('fTgl').value = today();
-  // Render dengan data cache yang ada (mungkin kosong di boot pertama)
-  updateStats();
+  // Sekarang #app sudah visible — render semua data dari cache
+  renderStats(isFresh('stats') ? C.stats.d : null);
   updSheetBadge();
   if (isFresh('sheets')) renderSheetList();
-  if (isFresh('wbp'))    { pg.wbp.rows = [...C.wbp.d]; renderWbp(); }
+  if (isFresh('wbp'))    { pg.wbp.rows=[...C.wbp.d]; renderWbp(); }
   setTimeout(() => { lazyObs(); applyGrid(); }, 50);
 }
 
@@ -347,13 +331,13 @@ async function doLogin() {
   setBtn('loginBtn',true);
   document.getElementById('loginErr').style.display='none';
   try {
+    // SATU request → login + dapat semua data sekaligus
     const r = await api({ action:'login', username:u, password:p }, 'POST');
     if (r.success) {
       curUser=u; LS.save(u);
-      // Simpan semua data dari response login
-      storeBootstrap(r);
+      // Terapkan semua data dari response login
+      applyBootstrap(r);
       toast('✅ Selamat datang, '+u+'! 👋');
-      // Tampilkan app — showApp akan render dari cache yang sudah terisi
       showApp();
     } else {
       document.getElementById('loginErr').textContent = r.message||'Username atau password salah';
@@ -435,19 +419,31 @@ function syncBadge(){const b1=document.getElementById('sheetBadge'),b2=document.
 // ═══════════════ STATS ════════════════════════════════════════
 // Hanya dipanggil setelah operasi CRUD untuk refresh angka
 async function loadStats(force=false) {
-  if (!force && isFresh('stats')) { updateStats(); return; }
-  if (!activeSheet) { updateStats(); return; }
+  if (!force && isFresh('stats')) { renderStats(C.stats.d); return; }
+  if (!activeSheet) { renderStats(null); return; }
   try {
-    const r = await api({ action:'getStats', sheet:activeSheet });
-    C.stats.d = r; C.stats.ok = true; C.stats.ts = Date.now();
-    updateStats();
-  } catch { updateStats(); }
+    const r=await api({action:'getStats',sheet:activeSheet});
+    C.stats.d=r; C.stats.ok=true; C.stats.ts=Date.now(); renderStats(r);
+  } catch { renderStats(C.stats.d); }
 }
 
-// renderStats: alias ke updateStats (untuk kompatibilitas dengan kode lama)
 function renderStats(r) {
-  if (r !== undefined) { C.stats.d = r; }
-  updateStats();
+  const s = document.getElementById('sSheet');
+  if (s) s.textContent = activeSheet || '—';
+  const el_t = document.getElementById('sTotal');
+  const el_h = document.getElementById('sToday');
+  const el_w = document.getElementById('sWbp');
+  if (!r) {
+    // Belum ada data — tampilkan dash
+    if (el_t) el_t.textContent = '—';
+    if (el_h) el_h.textContent = '—';
+    if (el_w) el_w.textContent = '—';
+    return;
+  }
+  // Data sudah ada — tampilkan angka (termasuk 0)
+  if (el_t) el_t.textContent = r.totalVisits   != null ? String(r.totalVisits)   : '—';
+  if (el_h) el_h.textContent = r.todayVisits   != null ? String(r.todayVisits)   : '—';
+  if (el_w) el_w.textContent = r.totalPatients != null ? String(r.totalPatients) : '—';
 }
 
 // ═══════════════ USER CONFIG ══════════════════════════════════
