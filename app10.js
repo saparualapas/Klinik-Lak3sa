@@ -49,11 +49,11 @@ window.addEventListener('load', () => {
       const u = LS.load();
       if (u) {
         curUser = u;
+        // Tampilkan app dulu dengan data localStorage (instant)
         const cs = localStorage.getItem('klinik_sheet');
         if (cs) activeSheet = cs;
-        showApp();
-        // Fetch semua data di background setelah UI tampil
-        fetchAndUpdate();
+        showApp();           // render dengan data kosong dulu
+        fetchAndUpdate();    // lalu fetch dari server, update UI setelah dapat data
       } else {
         showLogin();
       }
@@ -61,23 +61,21 @@ window.addEventListener('load', () => {
   }, 2400);
 });
 
-// Fetch bootstrap + fallback ke getStats jika bootstrap tidak return stats
+// Fetch data dari server lalu update UI — dipanggil di background
 async function fetchAndUpdate() {
-  let statsLoaded = false;
   try {
     const r = await api({ action:'bootstrap', username:curUser, sheet:activeSheet });
     storeBootstrap(r);
-    updateUI();
-    statsLoaded = isFresh('stats');
+    updateUI();             // update semua element setelah data masuk
   } catch(e) {
     console.warn('bootstrap failed:', e);
-  }
-  // Jika stats belum ada (bootstrap gagal / versi lama / data kosong), fetch langsung
-  if (!statsLoaded && activeSheet) {
+    // Fallback: coba getStats saja
     try {
-      const s = await api({ action:'getStats', sheet:activeSheet });
-      C.stats.d = s; C.stats.ok = true; C.stats.ts = Date.now();
-      updateStats();
+      if (activeSheet) {
+        const s = await api({ action:'getStats', sheet:activeSheet });
+        C.stats.d = s; C.stats.ok = true; C.stats.ts = Date.now();
+        updateStats();
+      }
     } catch {}
   }
 }
@@ -107,8 +105,7 @@ function storeBootstrap(r) {
     C.visits.ok = true; C.visits.ts = Date.now();
     pgLoaded['riw'] = true;
   }
-  // stats: gunakan hasOwnProperty agar stats {0,0,0} tetap tersimpan
-  if (r.stats && typeof r.stats === 'object') {
+  if (r.stats) {
     C.stats.d = r.stats; C.stats.ok = true; C.stats.ts = Date.now();
   }
 }
@@ -159,21 +156,12 @@ function showApp() {
   document.getElementById('app').style.display       = 'flex';
   document.getElementById('topbarUser').textContent  = '👤 ' + curUser;
   document.getElementById('fTgl').value = today();
-  // Render dari cache — updateStats() menampilkan angka atau '—'
+  // Render dengan data cache yang ada (mungkin kosong di boot pertama)
   updateStats();
   updSheetBadge();
   if (isFresh('sheets')) renderSheetList();
   if (isFresh('wbp'))    { pg.wbp.rows = [...C.wbp.d]; renderWbp(); }
   setTimeout(() => { lazyObs(); applyGrid(); }, 50);
-}
-
-// Dipanggil setelah aktivasi sheet baru agar stats ikut terupdate
-async function refreshStats() {
-  try {
-    const s = await api({ action:'getStats', sheet:activeSheet });
-    C.stats.d = s; C.stats.ok = true; C.stats.ts = Date.now();
-    updateStats();
-  } catch {}
 }
 
 window.addEventListener('resize', applyGrid);
@@ -362,17 +350,11 @@ async function doLogin() {
     const r = await api({ action:'login', username:u, password:p }, 'POST');
     if (r.success) {
       curUser=u; LS.save(u);
-      // Simpan data dari response login ke cache
+      // Simpan semua data dari response login
       storeBootstrap(r);
       toast('✅ Selamat datang, '+u+'! 👋');
-      showApp(); // render dari cache — stats mungkin sudah ada dari response login
-      // Selalu fetch stats langsung untuk memastikan angka tampil
-      // (fallback jika Code.gs lama tidak return stats di handleLogin)
-      if (!isFresh('stats') && activeSheet) {
-        const s = await api({ action:'getStats', sheet:activeSheet });
-        C.stats.d = s; C.stats.ok = true; C.stats.ts = Date.now();
-        updateStats();
-      }
+      // Tampilkan app — showApp akan render dari cache yang sudah terisi
+      showApp();
     } else {
       document.getElementById('loginErr').textContent = r.message||'Username atau password salah';
       document.getElementById('loginErr').style.display = 'block';
